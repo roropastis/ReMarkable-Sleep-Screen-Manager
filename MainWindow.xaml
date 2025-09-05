@@ -1,0 +1,88 @@
+﻿<Window x:Class="RemarkableSleepScreenManager.MainWindow"
+xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+Title="Remarkable SleepScreen Manager" Height="670" Width="780">
+    <Grid Margin="16">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="3*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+
+        <!-- Connexion -->
+        <GroupBox Header="Connexion" Grid.ColumnSpan="2" Padding="10" Margin="0,0,0,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="140"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+
+                <TextBlock Text="Adresse IP" VerticalAlignment="Center"/>
+                <TextBox x:Name="IpBox" Grid.Column="1" Margin="6,0" Text="10.11.99.1"/>
+                <Button Grid.Column="2" Content="Tester" Click="OnTestClick" Padding="14,6"/>
+
+
+                <TextBlock Grid.Row="1" Text="Utilisateur" VerticalAlignment="Center"/>
+                <TextBox x:Name="UserBox" Grid.Column="1" Grid.Row="1" Margin="6,0" Text="root"/>
+
+
+                <TextBlock Grid.Row="2" Text="Mot de passe" VerticalAlignment="Center"/>
+                <PasswordBox x:Name="PassBox" Grid.Column="1" Grid.Row="2" Margin="6,0"/>
+
+
+                <CheckBox x:Name="UseKeyBox" Grid.Row="3" Content="Utiliser une clé privée (OpenSSH)"/>
+                <StackPanel Grid.Column="1" Grid.Row="3" Orientation="Horizontal" Margin="6,0">
+                    <TextBox x:Name="KeyPathBox" Width="300" IsEnabled="False"/>
+                    <Button Content="Parcourir" Click="OnBrowseKey" Margin="6,0"/>
+                </StackPanel>
+            </Grid>
+        </GroupBox>
+
+
+        <!-- Image -->
+        <GroupBox Header="Image (Paper Pro: 2160×1620)" Grid.Row="1" Padding="10" Margin="0,0,10,0">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
+                    <Button Content="Choisir image…" Click="OnBrowseImage"/>
+                    <CheckBox x:Name="AutoResizeBox" Content="Redimensionner automatiquement à 2160×1620" Margin="12,0" IsChecked="True"/>
+                </StackPanel>
+                <Border BorderBrush="#DDD" BorderThickness="1" CornerRadius="4" Padding="6">
+                    <Image x:Name="Preview" Stretch="Uniform" Height="320"/>
+                </Border>
+            </DockPanel>
+        </GroupBox>
+
+
+        <!-- Actions & Log -->
+        <GroupBox Header="Actions" Grid.Row="1" Grid.Column="1" Padding="10">
+            <StackPanel>
+                <Button Content="Uploader / Appliquer" Click="OnApplyClick" Padding="10" Margin="0,0,0,6"/>
+                <Button Content="Restaurer le backup" Click="OnRestoreClick" Padding="10"/>
+                <TextBlock Text="Sortie / Log" FontWeight="Bold" Margin="0,12,0,4"/>
+                <ScrollViewer Height="240" VerticalScrollBarVisibility="Auto">
+                    <TextBox x:Name="LogBox" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True"/>
+                </ScrollViewer>
+            </StackPanel>
+        </GroupBox>
+
+
+        <StatusBar Grid.Row="2" Grid.ColumnSpan="2">
+            <StatusBarItem>
+                <TextBlock x:Name="StatusText" Text="Prêt"/>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>
