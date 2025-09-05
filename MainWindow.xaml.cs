@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using Renci.SshNet;
 using Renci.SshNet.Common;
 using System;
@@ -26,8 +26,6 @@ namespace RemarkableSleepScreenManager
         {
             InitializeComponent();
 
-            UseKeyBox.Checked += (_, __) => KeyPathBox.IsEnabled = true;
-            UseKeyBox.Unchecked += (_, __) => KeyPathBox.IsEnabled = false;
         }
 
         // Helpers UI
@@ -38,12 +36,6 @@ namespace RemarkableSleepScreenManager
         }
         private void SetStatus(string s) => StatusText.Text = s;
 
-        // Parcourir clé
-        private void OnBrowseKey(object sender, RoutedEventArgs e)
-        {
-            var dlg = new OpenFileDialog { Title = "Clé privée OpenSSH", Filter = "Clés (*.*)|*.*" };
-            if (dlg.ShowDialog() == true) KeyPathBox.Text = dlg.FileName;
-        }
 
         // Parcourir image
         private void OnBrowseImage(object sender, RoutedEventArgs e)
@@ -75,8 +67,6 @@ namespace RemarkableSleepScreenManager
             // SNAPSHOT UI
             var host = IpBox.Text.Trim();
             var user = UserBox.Text.Trim();
-            var useKey = UseKeyBox.IsChecked == true;
-            var key = KeyPathBox.Text;
             var pass = PassBox.Password;
 
             try
@@ -84,12 +74,13 @@ namespace RemarkableSleepScreenManager
                 SetStatus("Test de connexion...");
                 await Task.Run(() =>
                 {
-                    using var client = CreateSshClient(host, user, useKey, key, pass);
+                    using var client = CreateSshClient(host, user, pass);
                     client.Connect();
                     var resp = client.RunCommand("uname -a");
                     Dispatcher.Invoke(() => Log($"Connecté. {resp.Result.Trim()}"));
                     client.Disconnect();
                 });
+
                 SetStatus("OK");
             }
             catch (Exception ex)
@@ -112,8 +103,6 @@ namespace RemarkableSleepScreenManager
             // SNAPSHOT UI
             var host = IpBox.Text.Trim();
             var user = UserBox.Text.Trim();
-            var useKey = UseKeyBox.IsChecked == true;
-            var key = KeyPathBox.Text;
             var pass = PassBox.Password;
             var autoResize = AutoResizeBox.IsChecked == true;
 
@@ -130,7 +119,7 @@ namespace RemarkableSleepScreenManager
 
                 await Task.Run(() =>
                 {
-                    using (var sftp = CreateSftpClient(host, user, useKey, key, pass))
+                    using (var sftp = CreateSftpClient(host, user, pass))
                     {
                         sftp.Connect();
                         using var fs = File.OpenRead(tmp);
@@ -138,7 +127,7 @@ namespace RemarkableSleepScreenManager
                         sftp.Disconnect();
                     }
 
-                    using var ssh = CreateSshClient(host, user, useKey, key, pass);
+                    using var ssh = CreateSshClient(host, user, pass);
                     ssh.Connect();
                     string cmd = "mount -o remount,rw / && " +
                                  "mv /home/root/suspended.png /usr/share/remarkable/suspended.png && " +
@@ -147,6 +136,7 @@ namespace RemarkableSleepScreenManager
                     Dispatcher.Invoke(() => Log(r.Result + r.Error));
                     ssh.Disconnect();
                 });
+
 
                 SetStatus("Terminé ✔");
                 Log("Mets la tablette en veille pour voir l’écran.");
@@ -165,8 +155,6 @@ namespace RemarkableSleepScreenManager
             // SNAPSHOT UI
             var host = IpBox.Text.Trim();
             var user = UserBox.Text.Trim();
-            var useKey = UseKeyBox.IsChecked == true;
-            var key = KeyPathBox.Text;
             var pass = PassBox.Password;
 
             try
@@ -184,8 +172,7 @@ namespace RemarkableSleepScreenManager
 
                 await Task.Run(() =>
                 {
-                    // 1) Upload de l’original local vers /home/root/suspended.png
-                    using (var sftp = CreateSftpClient(host, user, useKey, key, pass))
+                    using (var sftp = CreateSftpClient(host, user, pass))
                     {
                         sftp.Connect();
                         using var fs = File.OpenRead(BundledOriginal);
@@ -193,8 +180,7 @@ namespace RemarkableSleepScreenManager
                         sftp.Disconnect();
                     }
 
-                    // 2) Remplacement + restart UI
-                    using var ssh = CreateSshClient(host, user, useKey, key, pass);
+                    using var ssh = CreateSshClient(host, user, pass);
                     ssh.Connect();
                     var r = ssh.RunCommand(
                         "mount -o remount,rw / && " +
@@ -203,6 +189,7 @@ namespace RemarkableSleepScreenManager
                     Dispatcher.Invoke(() => Log(r.Result + r.Error));
                     ssh.Disconnect();
                 });
+
 
                 SetStatus("Restauré ✔");
                 Log("L’écran d’origine (bundled) a été restauré.");
@@ -216,38 +203,18 @@ namespace RemarkableSleepScreenManager
 
 
         // Fabrique clients SSH/SFTP (mot de passe ou clé)
-        private SshClient CreateSshClient(string host, string user, bool useKey, string keyPath, string? pass)
+        private SshClient CreateSshClient(string host, string user, string? pass)
         {
-            if (useKey && File.Exists(keyPath))
-            {
-                var keyFile = new Renci.SshNet.PrivateKeyFile(keyPath);
-                var auth = new Renci.SshNet.PrivateKeyAuthenticationMethod(user, keyFile);
-                var conn = new Renci.SshNet.ConnectionInfo(host, 22, user, auth) { Timeout = TimeSpan.FromSeconds(10) };
-                return new Renci.SshNet.SshClient(conn);
-            }
-            else
-            {
-                var client = new Renci.SshNet.SshClient(host, user, pass);
-                client.ConnectionInfo.Timeout = TimeSpan.FromSeconds(10);
-                return client;
-            }
+            var client = new SshClient(host, user, pass);
+            client.ConnectionInfo.Timeout = TimeSpan.FromSeconds(10);
+            return client;
         }
 
-        private Renci.SshNet.SftpClient CreateSftpClient(string host, string user, bool useKey, string keyPath, string? pass)
+        private SftpClient CreateSftpClient(string host, string user, string? pass)
         {
-            if (useKey && File.Exists(keyPath))
-            {
-                var keyFile = new Renci.SshNet.PrivateKeyFile(keyPath);
-                var auth = new Renci.SshNet.PrivateKeyAuthenticationMethod(user, keyFile);
-                var conn = new Renci.SshNet.ConnectionInfo(host, 22, user, auth) { Timeout = TimeSpan.FromSeconds(10) };
-                return new Renci.SshNet.SftpClient(conn);
-            }
-            else
-            {
-                var client = new Renci.SshNet.SftpClient(host, 22, user, pass);
-                client.ConnectionInfo.Timeout = TimeSpan.FromSeconds(10);
-                return client;
-            }
+            var client = new SftpClient(host, 22, user, pass);
+            client.ConnectionInfo.Timeout = TimeSpan.FromSeconds(10);
+            return client;
         }
 
 
