@@ -73,4 +73,4 @@ def process_device(device: str, src_dir: Path, out_dir: Path, items: list):
             "author": "",
             "license": "CC0",
             "device": device,
-            "resolution": f"{tw}x{th}
+            "resolution": f"{tw}x{th}",
