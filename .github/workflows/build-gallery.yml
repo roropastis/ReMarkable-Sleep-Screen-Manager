@@ -6,10 +6,12 @@ on:
     paths:
       - 'gallery-src/**'
       - 'scripts/**'
+      - 'docs/index.html'
       - '.github/workflows/build-gallery.yml'
+  workflow_dispatch: {}
 
 permissions:
-  contents: write   # pour pousser les fichiers générés
+  contents: write
 
 jobs:
   build:
@@ -19,19 +21,35 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Show tree (before)
+        run: |
+          echo "== GITHUB_REPOSITORY: $GITHUB_REPOSITORY"
+          ls -la
+          echo "-----"
+          test -d docs && find docs -maxdepth 3 -type d -print || true
+          echo "-----"
+          test -d gallery-src && find gallery-src -maxdepth 3 -type d -print || true
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install deps
+      - name: Install dependencies
         run: |
           python -m pip install -U pip
           pip install -r requirements.txt
+          python -c "import PIL, sys; print('Pillow', PIL.__version__)"
 
       - name: Generate gallery (thumbs + index.json)
         run: |
           python scripts/generate_gallery.py
+
+      - name: Show tree (after)
+        run: |
+          find docs/gallery -maxdepth 3 -type f -print || true
+          echo "------ index.json ------"
+          cat docs/gallery/index.json || true
 
       - name: Commit & push changes
         run: |
