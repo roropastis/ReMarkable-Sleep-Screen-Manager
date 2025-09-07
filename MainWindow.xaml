@@ -42,12 +42,6 @@ Title="Remarkable SleepScreen Manager" Height="670" Width="780">
                 <TextBlock Grid.Row="2" Text="Mot de passe" VerticalAlignment="Center"/>
                 <PasswordBox x:Name="PassBox" Grid.Column="1" Grid.Row="2" Margin="6,0"/>
 
-
-                <CheckBox x:Name="UseKeyBox" Grid.Row="3" Content="Utiliser une clé privée (OpenSSH)"/>
-                <StackPanel Grid.Column="1" Grid.Row="3" Orientation="Horizontal" Margin="6,0">
-                    <TextBox x:Name="KeyPathBox" Width="300" IsEnabled="False"/>
-                    <Button Content="Parcourir" Click="OnBrowseKey" Margin="6,0"/>
-                </StackPanel>
             </Grid>
         </GroupBox>
 
@@ -86,3 +80,4 @@ Title="Remarkable SleepScreen Manager" Height="670" Width="780">
         </StatusBar>
     </Grid>
 </Window>
+
