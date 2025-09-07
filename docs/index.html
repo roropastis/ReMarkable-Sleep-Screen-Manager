@@ -48,26 +48,44 @@
   <footer>© 2025 <ton-user> • <a href="gallery/index.json">catalogue JSON</a></footer>
 
   <script>
-    const INDEX_URL = 'gallery/index.json';
-    fetch(INDEX_URL).then(r=>r.json()).then(({items})=>{
-      const grid = document.getElementById('grid');
-      grid.innerHTML = '';
-      (items||[]).forEach(it=>{
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <img src="${it.preview_url}" alt="${it.title}">
-          <h3>${it.title}</h3>
-          <div class="meta">${it.author || ''} • ${it.resolution || ''}</div>
-          <div class="row">
-            <a class="btn" href="${it.download_url}" download>Télécharger</a>
-          </div>
-        `;
-        grid.appendChild(card);
-      });
-    }).catch(err=>{
-      document.getElementById('grid').textContent = 'Erreur de chargement : ' + err;
+  const INDEX_URL = 'gallery/index.json';
+
+  function parseAspect(res){
+    // res comme "1620x2160" → "1620 / 2160"
+    if(!res) return "3 / 4";
+    const m = res.match(/^(\d+)\s*x\s*(\d+)$/i);
+    if(!m) return "3 / 4";
+    const w = +m[1], h = +m[2];
+    return `${w} / ${h}`;
+  }
+
+  fetch(INDEX_URL).then(r=>r.json()).then(({items})=>{
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    (items||[]).forEach(it=>{
+      const card = document.createElement('div');
+      card.className = 'card';
+      // ratio depuis resolution (sinon 3/4)
+      const ar = parseAspect(it.resolution);
+
+      card.innerHTML = `
+        <div class="ph" style="--ar:${ar}">
+          <img loading="lazy" src="${it.preview_url}" alt="${it.title}">
+        </div>
+        <h3>${it.title||''}</h3>
+        <div class="meta">
+          ${(it.author||'').trim()} ${it.author?'•':''} ${it.resolution||''}
+        </div>
+        <div class="row">
+          <a class="btn" href="${it.download_url}" download>Télécharger</a>
+        </div>
+      `;
+      grid.appendChild(card);
     });
-  </script>
+  }).catch(err=>{
+    document.getElementById('grid').textContent = 'Erreur de chargement : ' + err;
+  });
+</script>
+
 </body>
 </html>
