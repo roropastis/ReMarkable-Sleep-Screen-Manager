@@ -1,0 +1,46 @@
+name: Build Gallery
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'gallery-src/**'
+      - 'scripts/**'
+      - '.github/workflows/build-gallery.yml'
+
+permissions:
+  contents: write   # pour pousser les fichiers générés
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          python -m pip install -U pip
+          pip install -r requirements.txt
+
+      - name: Generate gallery (thumbs + index.json)
+        run: |
+          python scripts/generate_gallery.py
+
+      - name: Commit & push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/gallery
+          if git diff --cached --quiet; then
+            echo "No changes."
+          else
+            git commit -m "chore(gallery): auto-generate thumbs and index.json"
+            git push
+          fi
