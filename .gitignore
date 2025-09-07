@@ -20,3 +20,4 @@
 *.exe
 .vs/RemarkableSleepScreenManager/v17/.suo
 *.bin
+bin/Debug/net8.0-windows/win-x64/Assets/suspended.png
