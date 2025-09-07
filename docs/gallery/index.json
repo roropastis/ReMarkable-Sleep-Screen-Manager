@@ -2,15 +2,59 @@
   "updated": "2025-09-07",
   "items": [
     {
-      "id": "minimal-mountains",
-      "title": "Minimal Mountains",
-      "author": "YourName",
-      "license": "CC-BY-4.0",
+      "id": "01",
+      "title": "01",
+      "author": "",
+      "license": "CC0",
       "device": "paperpro",
       "resolution": "2160x1620",
-      "preview_url": "https://roropastis.github.io/ReMarkable-Sleep-Screen-Manager/gallery/thumbs/minimal-mountains.png",
-      "download_url": "https://roropastis.github.io/ReMarkable-Sleep-Screen-Manager/gallery/paperpro/minimal-mountains.png",
-      "tags": ["minimal", "clean"]
+      "preview_url": "https://roropastis.github.io/ReMarkable-Sleep-Screen-Manager/gallery/thumbs/01.jpg",
+      "download_url": "https://roropastis.github.io/ReMarkable-Sleep-Screen-Manager/gallery/paperpro/01.png",
+      "tags": []
+    },
+    {
+      "id": "02",
+      "title": "02",
+      "author": "",
+      "license": "CC0",
+      "device": "paperpro",
+      "resolution": "2160x1620",
+      "preview_url": "https://roropastis.github.io/ReMarkable-Sleep-Screen-Manager/gallery/thumbs/02.jpg",
+      "download_url": "https://roropastis.github.io/ReMarkable-Sleep-Screen-Manager/gallery/paperpro/02.png",
+      "tags": []
+    },
+    {
+      "id": "03",
+      "title": "03",
+      "author": "",
+      "license": "CC0",
+      "device": "paperpro",
+      "resolution": "2160x1620",
+      "preview_url": "https://roropastis.github.io/ReMarkable-Sleep-Screen-Manager/gallery/thumbs/03.jpg",
+      "download_url": "https://roropastis.github.io/ReMarkable-Sleep-Screen-Manager/gallery/paperpro/03.png",
+      "tags": []
+    },
+    {
+      "id": "04",
+      "title": "04",
+      "author": "",
+      "license": "CC0",
+      "device": "paperpro",
+      "resolution": "2160x1620",
+      "preview_url": "https://roropastis.github.io/ReMarkable-Sleep-Screen-Manager/gallery/thumbs/04.jpg",
+      "download_url": "https://roropastis.github.io/ReMarkable-Sleep-Screen-Manager/gallery/paperpro/04.png",
+      "tags": []
+    },
+    {
+      "id": "05",
+      "title": "05",
+      "author": "",
+      "license": "CC0",
+      "device": "paperpro",
+      "resolution": "2160x1620",
+      "preview_url": "https://roropastis.github.io/ReMarkable-Sleep-Screen-Manager/gallery/thumbs/05.jpg",
+      "download_url": "https://roropastis.github.io/ReMarkable-Sleep-Screen-Manager/gallery/paperpro/05.png",
+      "tags": []
     }
   ]
 }
