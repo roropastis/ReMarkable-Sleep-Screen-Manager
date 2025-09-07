@@ -11,11 +11,9 @@ PAPERPRO = OUT / "paperpro"
 RM2      = OUT / "rm2"
 
 # Déduit automatiquement l'URL GitHub Pages depuis GITHUB_REPOSITORY
-# Ex: roropastis/ReMarkable-Sleep-Screen-Manager -> https://roropastis.github.io/ReMarkable-Sleep-Screen-Manager
 repo = os.getenv("GITHUB_REPOSITORY", "").strip()
 if not repo or "/" not in repo:
-    # fallback pour exécution locale
-    repo = "user/repo"
+    repo = "user/repo"   # fallback local
 user, name = repo.split("/", 1)
 SITE_BASE = f"https://{user}.github.io/{name}"
 
@@ -67,6 +65,7 @@ def process_device(device: str, src_dir: Path, out_dir: Path, items: list):
             thumb = canvas.resize((thumb_w, thumb_h), Image.LANCZOS)
             thumb.save(dst_thumb, "JPEG", quality=82, optimize=True, progressive=True)
 
+        # Ajout au catalogue
         items.append({
             "id": slug,
             "title": slug.replace("-", " ").title(),
