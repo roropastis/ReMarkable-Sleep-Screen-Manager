@@ -19,3 +19,4 @@
 *.baml
 *.exe
 .vs/RemarkableSleepScreenManager/v17/.suo
+*.bin
