@@ -145,7 +145,7 @@ namespace RemarkableSleepScreenManager
                 var tmp = _imagePath;
                 if (autoResize)
                 {
-                    tmp = await Task.Run(() => ImageUtil.ResizeTo2160x1620(_imagePath!));
+                    tmp = await Task.Run(() => ImageUtil.ResizeTo1620x2160(_imagePath!));
                     Log($"Image redimensionnée → {tmp}");
                 }
 
@@ -311,7 +311,7 @@ namespace RemarkableSleepScreenManager
                     item.Device.Equals("paperpro", StringComparison.OrdinalIgnoreCase) &&
                     !string.Equals(item.Resolution, "2160x1620", StringComparison.OrdinalIgnoreCase))
                 {
-                    final = await Task.Run(() => ImageUtil.ResizeTo2160x1620(tmp));
+                    final = await Task.Run(() => ImageUtil.ResizeTo1620x2160(tmp));
                 }
 
                 // 3) upload + mv + restart
@@ -340,9 +340,6 @@ namespace RemarkableSleepScreenManager
                 MessageBox.Show(ex.Message, "Installer", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
-
-
 
         // Util redimensionnement simple (System.Drawing.Windows-only)
         internal static class ImageUtil
