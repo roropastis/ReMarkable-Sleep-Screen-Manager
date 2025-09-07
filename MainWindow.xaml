@@ -100,34 +100,37 @@
                     <TextBlock Text="Parcourez et installez un écran de veille depuis la galerie en ligne."
                                Foreground="Gray" Margin="0,0,0,8"/>
 
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                        <ListView x:Name="GalleryList" Margin="0,0,0,4">
-                            <ListView.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel/>
-                                </ItemsPanelTemplate>
-                            </ListView.ItemsPanel>
+                    <ListView x:Name="GalleryList" Grid.Row="1" Margin="0,0,0,4"
+          ScrollViewer.VerticalScrollBarVisibility="Auto"
+          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+          ScrollViewer.CanContentScroll="True">
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <!-- 3 colonnes fixes, le reste va à la ligne -->
+                                <UniformGrid Columns="3"/>
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
 
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <Border BorderBrush="#DDD" BorderThickness="1" CornerRadius="8" Padding="8" Margin="6" Width="240">
-                                        <StackPanel>
-                                            <Image Source="{Binding PreviewUrl}" Height="130" Stretch="UniformToFill" Margin="0,0,0,8"/>
-                                            <TextBlock Text="{Binding Title}" FontWeight="Bold"/>
-                                            <TextBlock Text="{Binding Author}" Foreground="Gray" FontSize="11"/>
-                                            <TextBlock Text="{Binding Resolution}" Foreground="Gray" FontSize="11" Margin="0,2,0,6"/>
-                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                                <Button Content="Télécharger" Margin="0,0,6,0"
-                                                        Click="OnDownloadFromGallery" Tag="{Binding}"/>
-                                                <Button Content="Installer"
-                                                        Click="OnInstallFromGallery" Tag="{Binding}"/>
-                                            </StackPanel>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="#DDD" BorderThickness="1" CornerRadius="8" Padding="8" Margin="6">
+                                    <StackPanel>
+                                        <Image Source="{Binding PreviewUrl}" Height="130" Stretch="UniformToFill" Margin="0,0,0,8"/>
+                                        <TextBlock Text="{Binding Title}" FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding Author}" Foreground="Gray" FontSize="11"/>
+                                        <TextBlock Text="{Binding Resolution}" Foreground="Gray" FontSize="11" Margin="0,2,0,6"/>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <Button Content="Télécharger" Margin="0,0,6,0"
+                    Click="OnDownloadFromGallery" Tag="{Binding}"/>
+                                            <Button Content="Installer"
+                    Click="OnInstallFromGallery" Tag="{Binding}"/>
                                         </StackPanel>
-                                    </Border>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </ScrollViewer>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
                 </Grid>
             </TabItem>
         </TabControl>

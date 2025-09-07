@@ -2,16 +2,17 @@ using Microsoft.Win32;
 using Renci.SshNet;
 using Renci.SshNet.Common;
 using System;
-using System.IO;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Media.Imaging;
+using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Net.Http;
 using System.Text.Json;
-using System.Collections.ObjectModel;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Media.Imaging;
 
 
 namespace RemarkableSleepScreenManager
@@ -33,10 +34,16 @@ namespace RemarkableSleepScreenManager
             public string License { get; set; } = "";
             public string Device { get; set; } = "paperpro";
             public string Resolution { get; set; } = "2160x1620";
+
+            [JsonPropertyName("preview_url")]
             public string PreviewUrl { get; set; } = "";
+
+            [JsonPropertyName("download_url")]
             public string DownloadUrl { get; set; } = "";
+
             public List<string> Tags { get; set; } = new();
         }
+
 
         private static readonly HttpClient _http = new HttpClient();
         // URL de ton JSON servi par GitHub Pages via /docs
@@ -285,7 +292,6 @@ namespace RemarkableSleepScreenManager
         {
             if ((sender as FrameworkElement)?.Tag is not GalleryItem item) return;
 
-            // Snapshot UI (ne pas lire les contrôles depuis Task.Run)
             var host = IpBox.Text.Trim();
             var user = UserBox.Text.Trim();
             var pass = PassBox.Password;
@@ -294,17 +300,21 @@ namespace RemarkableSleepScreenManager
             {
                 SetStatus("Installation depuis galerie...");
 
-                // 1) Télécharger l'image
+                // 1) télécharger
                 var bytes = await _http.GetByteArrayAsync(item.DownloadUrl);
                 var tmp = Path.Combine(Path.GetTempPath(), $"rm_{item.Id}_{Guid.NewGuid():N}.png");
                 await File.WriteAllBytesAsync(tmp, bytes);
 
-                // 2) Redimensionner si nécessaire (Paper Pro attendu 2160x1620)
+                // 2) NE PAS redimensionner par défaut ; ne le faire que si la case est cochée
                 var final = tmp;
-                if (item.Device.Equals("paperpro", StringComparison.OrdinalIgnoreCase) && !string.Equals(item.Resolution, "2160x1620", StringComparison.OrdinalIgnoreCase))
+                if (AutoResizeBox.IsChecked == true &&
+                    item.Device.Equals("paperpro", StringComparison.OrdinalIgnoreCase) &&
+                    !string.Equals(item.Resolution, "2160x1620", StringComparison.OrdinalIgnoreCase))
+                {
                     final = await Task.Run(() => ImageUtil.ResizeTo2160x1620(tmp));
+                }
 
-                // 3) Upload + mv + restart (même logique que OnApplyClick)
+                // 3) upload + mv + restart
                 await Task.Run(() =>
                 {
                     using (var sftp = CreateSftpClient(host, user, pass))
@@ -314,19 +324,15 @@ namespace RemarkableSleepScreenManager
                         sftp.UploadFile(fs, "/home/root/suspended.png", true);
                         sftp.Disconnect();
                     }
-
                     using var ssh = CreateSshClient(host, user, pass);
                     ssh.Connect();
-                    var r = ssh.RunCommand(
-                        "mount -o remount,rw / && " +
-                        "mv /home/root/suspended.png /usr/share/remarkable/suspended.png && " +
-                        "systemctl restart xochitl");
+                    var r = ssh.RunCommand("mount -o remount,rw / && mv /home/root/suspended.png /usr/share/remarkable/suspended.png && systemctl restart xochitl");
                     Dispatcher.Invoke(() => Log(r.Result + r.Error));
                     ssh.Disconnect();
                 });
 
                 SetStatus("Installé ✔");
-                Log($"Installé depuis galerie: {item.Title}");
+                Log($"Installé depuis galerie: {item.Title} (redimensionné: {(final != tmp ? "oui" : "non")})");
             }
             catch (Exception ex)
             {
@@ -337,33 +343,38 @@ namespace RemarkableSleepScreenManager
 
 
 
+
         // Util redimensionnement simple (System.Drawing.Windows-only)
         internal static class ImageUtil
         {
             // Redimensionne en PNG 2160x1620 avec fond blanc ; renvoie un chemin temp.
-            public static string ResizeTo2160x1620(string path)
+            public static string ResizeTo1620x2160(string path)
             {
+                int targetW = 1620;
+                int targetH = 2160;
+
                 using var src = Image.FromFile(path);
-                using var bmp = new Bitmap(2160, 1620);
+                using var bmp = new Bitmap(targetW, targetH);
                 using (var g = Graphics.FromImage(bmp))
                 {
                     g.InterpolationMode = InterpolationMode.HighQualityBicubic;
                     g.SmoothingMode = SmoothingMode.HighQuality;
                     g.PixelOffsetMode = PixelOffsetMode.HighQuality;
                     g.CompositingQuality = CompositingQuality.HighQuality;
-                    g.FillRectangle(Brushes.White, 0, 0, 2160, 1620);
+                    g.FillRectangle(Brushes.White, 0, 0, targetW, targetH);
 
-                    var ratio = Math.Min(2160f / src.Width, 1620f / src.Height);
+                    var ratio = Math.Min((float)targetW / src.Width, (float)targetH / src.Height);
                     var w = (int)(src.Width * ratio);
                     var h = (int)(src.Height * ratio);
-                    var x = (2160 - w) / 2;
-                    var y = (1620 - h) / 2;
+                    var x = (targetW - w) / 2;
+                    var y = (targetH - h) / 2;
                     g.DrawImage(src, x, y, w, h);
                 }
                 var tmp = Path.Combine(Path.GetTempPath(), $"rm_suspended_{Guid.NewGuid():N}.png");
                 bmp.Save(tmp, ImageFormat.Png);
                 return tmp;
             }
+
         }
     }
 }
