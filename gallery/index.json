@@ -1,0 +1,16 @@
+{
+  "updated": "2025-09-07",
+  "items": [
+    {
+      "id": "test",
+      "title": "Image de test",
+      "author": "Moi",
+      "license": "MIT",
+      "device": "paperpro",
+      "resolution": "2160x1620",
+      "preview_url": "https://<ton-user>.github.io/<ton-repo>/gallery/thumbs/test.jpg",
+      "download_url": "https://<ton-user>.github.io/<ton-repo>/gallery/paperpro/test.png",
+      "tags": ["test"]
+    }
+  ]
+}

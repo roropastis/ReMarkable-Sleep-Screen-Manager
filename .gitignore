@@ -1,0 +1,16 @@
+# Build
+bin/
+obj/
+publish/
+
+# VS
+.vs/
+*.user
+
+# Artifacts
+*.exe
+*.dll
+
+# NuGet cache (optionnel dans le repo)
+*.nupkg
+packages/
