@@ -53,30 +53,33 @@ def process_device(device: str, src_dir: Path, out_dir: Path, items: list):
         dst_png = out_dir / f"{slug}.png"
         dst_thumb = THUMBS / f"{slug}.jpg"
 
+        # --- PASSTHROUGH: ne change pas l'image, copie telle quelle ---
         with Image.open(src_path) as im:
             im = im.convert("RGB")
-            canvas = make_canvas_fit(im, tw, th)
-            canvas.save(dst_png, "PNG", optimize=True)
+            im.save(dst_png, "PNG", optimize=True)  # copie sans changer la taille
 
-            # vignette 600 px de large
+            # vignette 600 px (sur base de l'original)
             thumb_w = 600
-            tr = thumb_w / canvas.width
-            thumb_h = max(1, int(canvas.height * tr))
-            thumb = canvas.resize((thumb_w, thumb_h), Image.LANCZOS)
+            tr = thumb_w / im.width
+            thumb_h = max(1, int(im.height * tr))
+            thumb = im.resize((thumb_w, thumb_h), Image.LANCZOS)
             thumb.save(dst_thumb, "JPEG", quality=82, optimize=True, progressive=True)
 
-        # Ajout au catalogue
+            # On écrit la vraie résolution d'origine dans l'index
+            res = f"{im.width}x{im.height}"
+
         items.append({
             "id": slug,
             "title": slug.replace("-", " ").title(),
             "author": "",
             "license": "CC0",
             "device": device,
-            "resolution": f"{tw}x{th}",
+            "resolution": res,  # <-- plus le tw x th forcé
             "preview_url": f"{SITE_BASE}/gallery/thumbs/{dst_thumb.name}",
             "download_url": f"{SITE_BASE}/gallery/{device}/{dst_png.name}",
             "tags": []
         })
+
 
 def main():
     ensure_dirs()
