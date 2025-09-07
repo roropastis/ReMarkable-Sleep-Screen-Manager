@@ -9,7 +9,9 @@ using System.Windows.Media.Imaging;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-
+using System.Net.Http;
+using System.Text.Json;
+using System.Collections.ObjectModel;
 
 
 namespace RemarkableSleepScreenManager
@@ -20,6 +22,29 @@ namespace RemarkableSleepScreenManager
         // juste sous `private string? _imagePath;`
         private static readonly string BundledOriginal =
             System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "suspended.png");
+
+        // --- Galerie: modèles & client HTTP ---
+        public class GalleryCatalog { public string? Updated { get; set; } public List<GalleryItem> Items { get; set; } = new(); }
+        public class GalleryItem
+        {
+            public string Id { get; set; } = "";
+            public string Title { get; set; } = "";
+            public string Author { get; set; } = "";
+            public string License { get; set; } = "";
+            public string Device { get; set; } = "paperpro";
+            public string Resolution { get; set; } = "2160x1620";
+            public string PreviewUrl { get; set; } = "";
+            public string DownloadUrl { get; set; } = "";
+            public List<string> Tags { get; set; } = new();
+        }
+
+        private static readonly HttpClient _http = new HttpClient();
+        // URL de ton JSON servi par GitHub Pages via /docs
+        private const string GalleryIndexUrl =
+            "https://roropastis.github.io/ReMarkable-Sleep-Screen-Manager/gallery/index.json";
+
+        private readonly ObservableCollection<GalleryItem> _galleryItems = new();
+
 
 
         public MainWindow()
@@ -216,6 +241,100 @@ namespace RemarkableSleepScreenManager
             client.ConnectionInfo.Timeout = TimeSpan.FromSeconds(10);
             return client;
         }
+
+        private async void OnGalleryTabLoaded(object sender, RoutedEventArgs e)
+        {
+            if (GalleryList.Items.Count > 0) return; // déjà chargé
+            try
+            {
+                SetStatus("Chargement de la galerie...");
+                var json = await _http.GetStringAsync(GalleryIndexUrl);
+                var cat = JsonSerializer.Deserialize<GalleryCatalog>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                _galleryItems.Clear();
+                foreach (var it in cat?.Items ?? new()) _galleryItems.Add(it);
+                GalleryList.ItemsSource = _galleryItems;
+                SetStatus("Galerie chargée");
+            }
+            catch (Exception ex)
+            {
+                SetStatus("Erreur galerie");
+                MessageBox.Show(ex.Message, "Chargement galerie", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void OnDownloadFromGallery(object sender, RoutedEventArgs e)
+        {
+            if ((sender as FrameworkElement)?.Tag is not GalleryItem item) return;
+            try
+            {
+                SetStatus("Téléchargement...");
+                var bytes = await _http.GetByteArrayAsync(item.DownloadUrl);
+                var tmp = Path.Combine(Path.GetTempPath(), $"rm_{item.Id}_{Guid.NewGuid():N}.png");
+                await File.WriteAllBytesAsync(tmp, bytes);
+                Log($"Téléchargé → {tmp}");
+                SetStatus("Téléchargé ✔");
+            }
+            catch (Exception ex)
+            {
+                SetStatus("Erreur");
+                MessageBox.Show(ex.Message, "Télécharger", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void OnInstallFromGallery(object sender, RoutedEventArgs e)
+        {
+            if ((sender as FrameworkElement)?.Tag is not GalleryItem item) return;
+
+            // Snapshot UI (ne pas lire les contrôles depuis Task.Run)
+            var host = IpBox.Text.Trim();
+            var user = UserBox.Text.Trim();
+            var pass = PassBox.Password;
+
+            try
+            {
+                SetStatus("Installation depuis galerie...");
+
+                // 1) Télécharger l'image
+                var bytes = await _http.GetByteArrayAsync(item.DownloadUrl);
+                var tmp = Path.Combine(Path.GetTempPath(), $"rm_{item.Id}_{Guid.NewGuid():N}.png");
+                await File.WriteAllBytesAsync(tmp, bytes);
+
+                // 2) Redimensionner si nécessaire (Paper Pro attendu 2160x1620)
+                var final = tmp;
+                if (item.Device.Equals("paperpro", StringComparison.OrdinalIgnoreCase) && !string.Equals(item.Resolution, "2160x1620", StringComparison.OrdinalIgnoreCase))
+                    final = await Task.Run(() => ImageUtil.ResizeTo2160x1620(tmp));
+
+                // 3) Upload + mv + restart (même logique que OnApplyClick)
+                await Task.Run(() =>
+                {
+                    using (var sftp = CreateSftpClient(host, user, pass))
+                    {
+                        sftp.Connect();
+                        using var fs = File.OpenRead(final);
+                        sftp.UploadFile(fs, "/home/root/suspended.png", true);
+                        sftp.Disconnect();
+                    }
+
+                    using var ssh = CreateSshClient(host, user, pass);
+                    ssh.Connect();
+                    var r = ssh.RunCommand(
+                        "mount -o remount,rw / && " +
+                        "mv /home/root/suspended.png /usr/share/remarkable/suspended.png && " +
+                        "systemctl restart xochitl");
+                    Dispatcher.Invoke(() => Log(r.Result + r.Error));
+                    ssh.Disconnect();
+                });
+
+                SetStatus("Installé ✔");
+                Log($"Installé depuis galerie: {item.Title}");
+            }
+            catch (Exception ex)
+            {
+                SetStatus("Erreur");
+                MessageBox.Show(ex.Message, "Installer", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
 
 
         // Util redimensionnement simple (System.Drawing.Windows-only)
