@@ -74,3 +74,25 @@ def process_device(device: str, src_dir: Path, out_dir: Path, items: list):
             "license": "CC0",
             "device": device,
             "resolution": f"{tw}x{th}",
+            "preview_url": f"{SITE_BASE}/gallery/thumbs/{dst_thumb.name}",
+            "download_url": f"{SITE_BASE}/gallery/{device}/{dst_png.name}",
+            "tags": []
+        })
+
+def main():
+    ensure_dirs()
+    items = []
+    process_device("paperpro", SRC / "paperpro", PAPERPRO, items)
+    process_device("rm2", SRC / "rm2", RM2, items)
+
+    index = {
+        "updated": datetime.utcnow().strftime("%Y-%m-%d"),
+        "items": items
+    }
+    OUT.mkdir(parents=True, exist_ok=True)
+    with open(OUT / "index.json", "w", encoding="utf-8") as f:
+        json.dump(index, f, ensure_ascii=False, indent=2)
+    print(f"Generated docs/gallery/index.json with {len(items)} items")
+
+if __name__ == "__main__":
+    main()
