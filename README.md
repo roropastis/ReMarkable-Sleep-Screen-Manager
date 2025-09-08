@@ -1,52 +1,142 @@
-# Remarkable SleepScreen Manager
+# ReMarkable SleepScreen Manager
 
-![screenshot](Assets/app_screenshot.png) <!-- optionnel si tu ajoutes une capture -->
+A modern **Windows (WPF, .NET 8)** application that allows you to easily change the sleep screen of your **reMarkable** tablet (Paper Pro or RM2).  
 
-Une petite application **Windows (WPF, .NET 8)** qui permet de changer facilement l’écran de veille (*sleep screen*) d’une tablette **reMarkable** (Paper Pro ou RM2).  
-
----
-
-## ✨ Fonctionnalités
-- Connexion simple à la tablette via **SSH/SFTP** (mot de passe root).
-- Sélection et **prévisualisation** d’une image PNG.
-- **Redimensionnement automatique** à la résolution de la tablette :
-  - Paper Pro → `2160×1620`
-- Upload et application directe sur la tablette (avec redémarrage de l’UI).
-- Bouton **Restore** qui restaure l’image par défaut incluse dans l’app (`Assets/suspended.png`).
-- Interface légère et portable : un seul `.exe`.
+![Version](https://img.shields.io/badge/version-0.0.2-blue.svg)
+![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)
+![Platform](https://img.shields.io/badge/platform-Windows-lightgrey.svg)
 
 ---
 
-## 🖼️ Captures
-*(ajoute une ou plusieurs images ici — par ex. `doc/screenshot.png`)*
+## ✨ Features
+
+### 🖼️ **Local Image Management**
+- Simple SSH/SFTP connection to your tablet (root password)
+- **Image preview** with automatic resizing
+- **Auto-resize** to tablet resolution:
+  - Paper Pro → `2160×1620` (portrait)
+  - RM2 → `1404×1872` (portrait)
+- Direct upload and application with UI restart
+- **Restore** button to revert to the default bundled image
+
+### 🔄 **Auto Rotation Mode**
+- Install automatic sleep screen rotation
+- Upload multiple PNG images to the tablet
+- Random selection after deep sleep (~12 minutes)
+- Easy installation/uninstallation with systemd hooks
+
+### 🌐 **Online Gallery**
+- Browse curated sleep screen collection
+- Download and install directly from the gallery
+- Community-contributed images
+- Automatic resolution handling
+
+### 🌍 **Internationalization**
+- **English** and **Français** language support
+- Easy language switching
+- Localized interface and messages
+
+---
+
+## 🖼️ Screenshots
+
+*Screenshots coming soon...*
 
 ---
 
 ## 🔧 Installation
-1. **Télécharge** la dernière release (ou compile depuis les sources).
-2. Active le **mode développeur** sur ta reMarkable :
+
+### Prerequisites
+1. **Enable Developer Mode** on your reMarkable:
    - Settings → General → Software version → Developer Mode → ON
-   - Note l’**IP** (souvent `10.11.99.1` en USB) et le **mot de passe root**.
-3. Lance `RemarkableSleepScreenManager.exe`.
-4. Renseigne :
-   - **IP** : `10.11.99.1`
-   - **Utilisateur** : `root`
-   - **Mot de passe** : affiché sur la tablette
-5. Clique sur **Tester** → la connexion doit afficher `uname -a`.
-6. Choisis une image, clique sur **Uploader & Appliquer**.
-7. Mets la tablette en veille → ton nouvel écran apparaît 🎉.
+   - Note the **IP address** (usually `10.11.99.1` via USB) and **root password**
+
+### Quick Start
+1. **Download** the latest release or compile from source
+2. Run `RemarkableSleepScreenManager.exe`
+3. Configure connection:
+   - **IP Address**: `10.11.99.1`
+   - **Username**: `root`
+   - **Password**: displayed on your tablet
+4. Click **Test** → connection should show `uname -a`
+5. Choose an image and click **Upload & Apply**
+6. Put your tablet to sleep → your new screen appears 🎉
 
 ---
 
-## 🛠️ Compilation (développeurs)
-Prérequis :  
-- **Visual Studio 2022+**  
-- **.NET 8 SDK**  
-- **Windows 10/11**  
+## 🛠️ Development
 
-Étapes :  
+### Prerequisites
+- **Visual Studio 2022+** or **VS Code**
+- **.NET 8 SDK**
+- **Windows 10/11**
+
+### Build from Source
 ```bash
-git clone https://github.com/<ton-compte>/RemarkableSleepScreenManager.git
-cd RemarkableSleepScreenManager
-# Ouvre la solution dans Visual Studio
-# Build → Rebuild Solution
+git clone https://github.com/roropastis/ReMarkable-Sleep-Screen-Manager.git
+cd ReMarkable-Sleep-Screen-Manager
+dotnet build
+```
+
+### Architecture
+The application follows **MVVM pattern** with:
+- **Models**: Data structures and business logic
+- **ViewModels**: UI logic and data binding
+- **Services**: SSH, image processing, gallery management
+- **Localization**: Multi-language support with resource files
+
+---
+
+## 📁 Project Structure
+
+```
+├── Models/              # Data models and business logic
+├── ViewModels/          # MVVM view models
+├── Services/            # Business services (SSH, Image, Gallery)
+├── Commands/            # Command pattern implementation
+├── Localization/        # Internationalization support
+├── Resources/           # Localized strings and assets
+├── Assets/              # Application assets
+└── docs/               # Documentation and gallery
+```
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Adding Gallery Images
+1. Add PNG files to `gallery-src/paperpro/` or `gallery-src/rm2/`
+2. Run `python scripts/generate_gallery.py`
+3. Commit the generated files
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- **reMarkable** for creating amazing e-ink tablets
+- **SSH.NET** for SSH/SFTP connectivity
+- **Community contributors** for gallery images
+
+---
+
+## 📞 Support
+
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/roropastis/ReMarkable-Sleep-Screen-Manager/issues)
+- 💡 **Feature Requests**: [GitHub Discussions](https://github.com/roropastis/ReMarkable-Sleep-Screen-Manager/discussions)
+- 📧 **Contact**: [Your contact information]
+
+---
+
+**Made with ❤️ for the reMarkable community**

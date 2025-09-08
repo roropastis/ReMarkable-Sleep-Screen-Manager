@@ -19,12 +19,12 @@
         </Grid.RowDefinitions>
         <!-- En-tête simple -->
         <DockPanel Grid.Row="0" Margin="0,0,0,8">
-            <TextBlock FontSize="18" FontWeight="Bold" ><Run Text="Re"/><Run Language="fr-ch" Text="M"/><Run Text="arkable SleepScreen Manager"/></TextBlock>
+            <TextBlock x:Name="HeaderText" FontSize="18" FontWeight="Bold" Text="ReMarkable SleepScreen Manager"/>
         </DockPanel>
         <!-- Onglets -->
         <TabControl Grid.Row="1" Margin="0,146,0,10">
             <!-- ONGLET LOCAL (ton flux actuel) -->
-            <TabItem Header="Local">
+            <TabItem x:Name="LocalTab" Header="Local">
                 <Grid Margin="4">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*"/>
@@ -39,8 +39,8 @@
                     <GroupBox Header="Image (Paper Pro: 2160×1620)" Grid.Row="1" Padding="10" Margin="0,0,10,0" Height="513" VerticalAlignment="Top">
                         <DockPanel Height="489">
                             <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
-                                <Button Content="Choisir image…" Click="OnBrowseImage"/>
-                                <CheckBox x:Name="AutoResizeBox" Content="Redimensionner &#xD;&#xA;automatiquement à 2160×1620" Margin="12,0" IsChecked="True" Height="34" Width="198"/>
+                                <Button x:Name="ChooseImageButton" Content="Choisir image…" Click="OnBrowseImage"/>
+                                <CheckBox x:Name="AutoResizeBox" Content="Redimensionner automatiquement à 2160×1620" Margin="12,0" IsChecked="True" Height="34" Width="198"/>
                             </StackPanel>
                             <Border BorderBrush="#DDD" BorderThickness="1" CornerRadius="4" Padding="6" Height="410">
                                 <Image x:Name="Preview" Stretch="Uniform" Margin="0,-1,0,21"/>
@@ -50,9 +50,9 @@
                     <!-- Actions & Log -->
                     <GroupBox Header="Actions" Grid.Row="1" Grid.Column="1" Padding="10" Height="513" VerticalAlignment="Top">
                         <StackPanel Height="478">
-                            <Button Content="Uploader &amp; Appliquer" Click="OnApplyClick" Padding="10" Margin="0,0,0,6"/>
-                            <Button Content="Restaurer l'image par défaut" Click="OnRestoreClick" Padding="10"/>
-                            <TextBlock Text="Sortie / Log" FontWeight="Bold" Margin="0,12,0,4"/>
+                            <Button x:Name="UploadApplyButton" Content="Uploader &amp; Appliquer" Click="OnApplyClick" Padding="10" Margin="0,0,0,6"/>
+                            <Button x:Name="RestoreDefaultButton" Content="Restaurer l'image par défaut" Click="OnRestoreClick" Padding="10"/>
+                            <TextBlock x:Name="OutputLogLabel" Text="Sortie / Log" FontWeight="Bold" Margin="0,12,0,4"/>
                             <ScrollViewer Height="355" VerticalScrollBarVisibility="Auto">
                                 <TextBox x:Name="LogBox" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" Height="355"/>
                             </ScrollViewer>
@@ -62,29 +62,28 @@
             </TabItem>
 
             <!-- ONGLET ROTATION AUTO -->
-            <TabItem Header="Rotation auto">
+            <TabItem x:Name="AutoRotationTab" Header="Rotation auto">
                 <Grid Margin="4">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock
-               Foreground="Gray" Height="38" VerticalAlignment="Center" TextWrapping="Wrap"><Run Text="Installe une rotation automatique du sleep screen (Paper Pro). Les images conseillées : "/><Run Language="fr-ch" Text="2160x1620"/><Run Text=" portrait. "/><LineBreak/><Run Text="Le changement est visible a"/><Run Language="fr-ch" Text="près une sortie du"/><Run Text=" deep sleep (~12 min)."/></TextBlock>
+                    <TextBlock x:Name="AutoRotationDescription" Foreground="Gray" Height="38" VerticalAlignment="Center" TextWrapping="Wrap" Text="Installe une rotation automatique du sleep screen (Paper Pro). Les images conseillées : 2160x1620 portrait. Le changement est visible après une sortie du deep sleep (~12 min)."/>
 
                     <StackPanel Grid.Row="1" Orientation="Vertical">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                             <TextBox x:Name="ScreensFolderBox" Width="420" IsReadOnly="True"/>
-                            <Button Content="Choisir dossier…" Click="OnBrowseScreensFolder" Margin="8,0,0,0"/>
+                            <Button x:Name="ChooseFolderButton" Content="Choisir dossier…" Click="OnBrowseScreensFolder" Margin="8,0,0,0"/>
                         </StackPanel>
 
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <Button Content="Uploader dossier" Click="OnUploadScreensClick"/>
-                            <Button Content="Installer" Click="OnInstallRotationHook" Margin="8,0,0,0"/>
-                            <Button Content="Désinstaller" Click="OnUninstallRotation" Margin="8,0,0,0"/>
-                            <Button Content="Tester maintenant" Click="OnTestRotationNow" Margin="8,0,0,0"/>
+                            <Button x:Name="UploadFolderButton" Content="Uploader dossier" Click="OnUploadScreensClick"/>
+                            <Button x:Name="InstallButton" Content="Installer" Click="OnInstallRotationHook" Margin="8,0,0,0"/>
+                            <Button x:Name="UninstallButton" Content="Désinstaller" Click="OnUninstallRotation" Margin="8,0,0,0"/>
+                            <Button x:Name="TestNowButton" Content="Tester maintenant" Click="OnTestRotationNow" Margin="8,0,0,0"/>
                         </StackPanel>
-                        <TextBlock FontWeight="Bold"><Run Text="Log"/><LineBreak/><Run/></TextBlock>
+                        <TextBlock x:Name="RotationLogLabel" FontWeight="Bold" Text="Log"/>
                         <ScrollViewer Height="249" VerticalScrollBarVisibility="Auto">
                             <TextBox x:Name="RotationLogBox" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" Height="249"/>
                         </ScrollViewer>
@@ -94,13 +93,13 @@
 
 
             <!-- ONGLET GALERIE (chargée depuis /docs/gallery/index.json) -->
-            <TabItem Header="Galerie" x:Name="GalleryTab" Loaded="OnGalleryTabLoaded">
+            <TabItem x:Name="GalleryTab" Header="Galerie" Loaded="OnGalleryTabLoaded">
                 <Grid Margin="4">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="Parcourez et installez un écran de veille depuis la galerie en ligne." Foreground="Gray" Margin="0,0,0,8"/>
+                    <TextBlock x:Name="GalleryDescription" Text="Parcourez et installez un écran de veille depuis la galerie en ligne." Foreground="Gray" Margin="0,0,0,8"/>
                     <ListView x:Name="GalleryList" Grid.Row="1" Margin="0,0,0,4" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.CanContentScroll="True">
                         <!-- 3 colonnes fixes -->
                         <ListView.ItemsPanel>
@@ -145,10 +144,19 @@
             <StatusBarItem Height="22" VerticalAlignment="Bottom">
                 <TextBlock x:Name="StatusText" Text="Prêt"/>
             </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock x:Name="LanguageLabel" Text="Langue:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <ComboBox x:Name="LanguageComboBox" Width="100" SelectionChanged="OnLanguageChanged" SelectedIndex="-1">
+                        <ComboBoxItem Content="English" Tag="en-US"/>
+                        <ComboBoxItem Content="Français" Tag="fr-FR"/>
+                    </ComboBox>
+                </StackPanel>
+            </StatusBarItem>
         </StatusBar>
         <!-- Footer séparé -->
-        <TextBlock Grid.Row="3" HorizontalAlignment="Center" Margin="0,3,0,2" FontSize="11" Foreground="Gray"><Run Text="© 2025 r"/><Run Text="0ma1n"/><Run Text=" – Re"/><Run Language="fr-ch" Text="M"/><Run Text="arkable SleepScreen Manager v0.0.2"/></TextBlock>
-        <GroupBox Header="Connexion" Padding="10" Margin="0,9,10,0" Grid.Row="1" Height="128" VerticalAlignment="Top">
+        <TextBlock x:Name="CopyrightText" Grid.Row="3" HorizontalAlignment="Center" Margin="0,3,0,2" FontSize="11" Foreground="Gray" Text="© 2025 r0ma1n – ReMarkable SleepScreen Manager v0.0.2"/>
+        <GroupBox x:Name="ConnectionGroupBox" Header="Connexion" Padding="10" Margin="0,9,10,0" Grid.Row="1" Height="128" VerticalAlignment="Top">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="140"/>
@@ -160,12 +168,12 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <TextBlock Text="Adresse IP" VerticalAlignment="Top" Height="25" HorizontalAlignment="Left" Grid.ColumnSpan="2" Width="204"/>
+                <TextBlock x:Name="IpAddressLabel" Text="Adresse IP" VerticalAlignment="Top" Height="25" HorizontalAlignment="Left" Grid.ColumnSpan="2" Width="204"/>
                 <TextBox x:Name="IpBox" Grid.Column="1" Margin="6,0,339,16" Text="10.11.99.1" Width="240" Height="25" FontSize="14"/>
-                <Button Grid.Column="1" Content="Tester" Click="OnTestClick" Padding="14,6" Margin="322,18,233,36" Grid.RowSpan="3"/>
-                <TextBlock Text="Utilisateur" VerticalAlignment="Top" Margin="1,30,584,0" Grid.ColumnSpan="2" Grid.RowSpan="3" Height="25"/>
+                <Button x:Name="TestButton" Grid.Column="1" Content="Tester" Click="OnTestClick" Padding="14,6" Margin="322,18,233,36" Grid.RowSpan="3"/>
+                <TextBlock x:Name="UsernameLabel" Text="Utilisateur" VerticalAlignment="Top" Margin="1,30,584,0" Grid.ColumnSpan="2" Grid.RowSpan="3" Height="25"/>
                 <TextBox x:Name="UserBox" Grid.Column="1" Margin="6,30,339,40" Text="root" Grid.RowSpan="3" Width="240" Height="25" FontSize="14"/>
-                <TextBlock Grid.Row="2" Text="Mot de passe" Margin="0,19,613,0" Height="25" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+                <TextBlock x:Name="PasswordLabel" Grid.Row="2" Text="Mot de passe" Margin="0,19,613,0" Height="25" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
                 <PasswordBox x:Name="PassBox" Grid.Column="1" Grid.Row="2" Margin="6,19,339,10" Height="25" Width="240" FontSize="14"/>
             </Grid>
         </GroupBox>

@@ -5,6 +5,8 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -16,6 +18,7 @@ using System.Text;
 using WF = System.Windows.Forms; // alias FolderBrowserDialog
 using Win32OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 using WpfMessageBox = System.Windows.MessageBox;
+using RemarkableSleepScreenManager.Localization;
 
 
 namespace RemarkableSleepScreenManager
@@ -82,7 +85,102 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
         public MainWindow()
         {
             InitializeComponent();
+            
+            // Initialize language selector
+            InitializeLanguageSelector();
+            
+            // Subscribe to language changes
+            ResourceManager.CultureChanged += OnResourceManagerCultureChanged;
+            
+            // Initialize UI texts
+            UpdateUITexts();
+        }
 
+        private void InitializeLanguageSelector()
+        {
+            // Set French as default language
+            ResourceManager.SetLanguage("fr-FR");
+            
+            // Set French as selected in the combo box
+            foreach (ComboBoxItem item in LanguageComboBox.Items)
+            {
+                if (item.Tag?.ToString() == "fr-FR")
+                {
+                    LanguageComboBox.SelectedItem = item;
+                    break;
+                }
+            }
+        }
+
+        private void OnResourceManagerCultureChanged(object sender, EventArgs e)
+        {
+            // Update UI texts when language changes
+            UpdateUITexts();
+        }
+
+        private void OnLanguageChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (LanguageComboBox.SelectedItem is ComboBoxItem selectedItem && 
+                selectedItem.Tag is string languageCode)
+            {
+                ResourceManager.SetLanguage(languageCode);
+            }
+        }
+
+        private void UpdateUITexts()
+        {
+            // Update main window title
+            Title = ResourceManager.GetString("AppTitle");
+            
+            // Update header
+            HeaderText.Text = ResourceManager.GetString("AppTitle");
+            
+            // Update status bar
+            StatusText.Text = ResourceManager.GetString("Ready");
+            
+            // Update connection group box
+            ConnectionGroupBox.Header = ResourceManager.GetString("Connection");
+            
+            // Update tab headers
+            LocalTab.Header = ResourceManager.GetString("Local");
+            AutoRotationTab.Header = ResourceManager.GetString("AutoRotation");
+            GalleryTab.Header = ResourceManager.GetString("Gallery");
+            
+            // Update descriptions
+            AutoRotationDescription.Text = ResourceManager.GetString("AutoRotationDescription");
+            GalleryDescription.Text = ResourceManager.GetString("BrowseGallery");
+            
+            // Update buttons and labels
+            ChooseImageButton.Content = ResourceManager.GetString("ChooseImageButton");
+            AutoResizeBox.Content = ResourceManager.GetString("AutoResizeCheckBox");
+            UploadApplyButton.Content = ResourceManager.GetString("UploadApplyButton");
+            RestoreDefaultButton.Content = ResourceManager.GetString("RestoreDefaultButton");
+            OutputLogLabel.Text = ResourceManager.GetString("OutputLogLabel");
+            
+            ChooseFolderButton.Content = ResourceManager.GetString("ChooseFolderButton");
+            UploadFolderButton.Content = ResourceManager.GetString("UploadFolderButton");
+            InstallButton.Content = ResourceManager.GetString("InstallButton");
+            UninstallButton.Content = ResourceManager.GetString("UninstallButton");
+            TestNowButton.Content = ResourceManager.GetString("TestNowButton");
+            RotationLogLabel.Text = ResourceManager.GetString("Log");
+            
+            // Update connection labels
+            IpAddressLabel.Text = ResourceManager.GetString("IpAddressLabel");
+            UsernameLabel.Text = ResourceManager.GetString("UsernameLabel");
+            PasswordLabel.Text = ResourceManager.GetString("PasswordLabel");
+            TestButton.Content = ResourceManager.GetString("Test");
+            
+            // Update language label
+            LanguageLabel.Text = ResourceManager.GetString("Language") + ":";
+            
+            // Update copyright
+            CopyrightText.Text = ResourceManager.GetString("Copyright");
+            
+            // Update gallery button texts if gallery is loaded
+            if (GalleryList.Items.Count > 0)
+            {
+                UpdateGalleryButtonTexts();
+            }
         }
 
         // Helpers UI
@@ -306,12 +404,53 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
                 foreach (var it in cat?.Items ?? new()) _galleryItems.Add(it);
                 GalleryList.ItemsSource = _galleryItems;
                 SetStatus("Galerie chargée");
+                
+                // Update gallery button texts after loading
+                UpdateGalleryButtonTexts();
             }
             catch (Exception ex)
             {
                 SetStatus("Erreur galerie");
                 WpfMessageBox.Show(ex.Message, "Chargement galerie", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void UpdateGalleryButtonTexts()
+        {
+            // Update gallery button texts in the template
+            foreach (var item in GalleryList.Items)
+            {
+                var container = GalleryList.ItemContainerGenerator.ContainerFromItem(item) as System.Windows.Controls.ListViewItem;
+                if (container != null)
+                {
+                    var border = FindVisualChild<Border>(container, "Tile");
+                    if (border != null)
+                    {
+                        var downloadButton = FindVisualChild<System.Windows.Controls.Button>(border, "DownloadButton");
+                        var installButton = FindVisualChild<System.Windows.Controls.Button>(border, "InstallButton");
+                        
+                        if (downloadButton != null)
+                            downloadButton.Content = ResourceManager.GetString("DownloadButton");
+                        if (installButton != null)
+                            installButton.Content = ResourceManager.GetString("InstallFromGalleryButton");
+                    }
+                }
+            }
+        }
+
+        private T? FindVisualChild<T>(DependencyObject parent, string name) where T : DependencyObject
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T t && (child as FrameworkElement)?.Name == name)
+                    return t;
+                
+                var childOfChild = FindVisualChild<T>(child, name);
+                if (childOfChild != null)
+                    return childOfChild;
+            }
+            return null;
         }
 
         private async void OnDownloadFromGallery(object sender, RoutedEventArgs e)
@@ -563,7 +702,7 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
             // Redimensionne en PNG 1620x2160 portrait ; renvoie un chemin temp.
             public static string ResizeTo2160x1620(string path)
             {
-                using var src = Image.FromFile(path);
+                using var src = System.Drawing.Image.FromFile(path);
                 // ← dimensions correctes (largeur 1620, hauteur 2160)
                 using var bmp = new Bitmap(1620, 2160);
                 using (var g = Graphics.FromImage(bmp))
@@ -572,7 +711,7 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
                     g.SmoothingMode = SmoothingMode.HighQuality;
                     g.PixelOffsetMode = PixelOffsetMode.HighQuality;
                     g.CompositingQuality = CompositingQuality.HighQuality;
-                    g.FillRectangle(Brushes.White, 0, 0, 1620, 2160);
+                    g.FillRectangle(System.Drawing.Brushes.White, 0, 0, 1620, 2160);
 
                     var ratio = Math.Min(1620f / src.Width, 2160f / src.Height);
                     var w = (int)(src.Width * ratio);

@@ -1,28 +1,56 @@
-.vs/RemarkableSleepScreenManager/CopilotIndices/17.14.1091.29919/CodeChunks.db
-*.db-shm
-*.db-wal
-*.db
-*.v2
-*.vsidx
-*.json
-*.dll
-*.props
-*.cache
-*.targets
-*.cs
-*.pdb
-*.editorconfig
-*.resources
-*.txt
-*.BuildWithSkipAnalyzers
-*.Up2Date
-*.baml
-*.exe
-.vs/RemarkableSleepScreenManager/v17/.suo
-*.bin
-bin/Debug/net8.0-windows/win-x64/Assets/suspended.png
-AssemblyInfo.cs
-bin/Debug
+# Build results
+bin/
 obj/
+*.user
+*.suo
+*.cache
+*.log
 
-obj/Debug/net8.0-windows/win-x64/RemarkableSleepScreenManager_MarkupCompile.lref
+# Visual Studio files
+.vs/
+*.userprefs
+*.sln.docstates
+
+# NuGet packages
+packages/
+*.nupkg
+*.snupkg
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+*.swp
+*.swo
+*~
+
+# Project specific
+# Keep only essential files for the application
+# Remove build artifacts but keep source code
+
+# Keep these essential files:
+# - All .cs files (source code)
+# - All .xaml files (UI)
+# - .csproj and .sln (project files)
+# - README.md (documentation)
+# - Assets/ (application assets)
+# - docs/ (documentation and gallery)
+# - gallery-src/ (source images for gallery)
+# - scripts/ (build scripts)
+# - Resources/ (if any)
+
+# Remove these build artifacts:
+# - bin/ and obj/ (compiled files)
+# - *.user files (user-specific settings)
+# - Temporary build files

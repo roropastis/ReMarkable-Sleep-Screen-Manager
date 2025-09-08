@@ -16,7 +16,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Remove="basic_picture_multiple.png" />
 	  <None Remove="image-icon-png-6.jpg" />
 	</ItemGroup>
 
@@ -32,8 +31,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Resource Include="basic_picture_multiple.png" />
 	  <Resource Include="image-icon-png-6.jpg" />
 	</ItemGroup>
+
 
 </Project>

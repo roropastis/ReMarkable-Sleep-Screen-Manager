@@ -1,0 +1,15 @@
+<UserControl x:Class="RemarkableSleepScreenManager.Localization.LanguageSelector"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:RemarkableSleepScreenManager.Localization">
+    <StackPanel Orientation="Horizontal">
+        <TextBlock Text="Language" 
+                   VerticalAlignment="Center" Margin="0,0,8,0"/>
+        <ComboBox x:Name="LanguageComboBox" 
+                  Width="120" 
+                  SelectionChanged="OnLanguageChanged">
+            <ComboBoxItem Content="English" Tag="en-US"/>
+            <ComboBoxItem Content="Français" Tag="fr-FR"/>
+        </ComboBox>
+    </StackPanel>
+</UserControl>
