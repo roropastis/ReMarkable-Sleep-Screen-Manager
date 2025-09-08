@@ -42,7 +42,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Generate gallery
-        run: python Scripts/generate_gallery.py
+        run: python scripts/generate_gallery.py
 
       - name: Commit and push changes
         run: |
