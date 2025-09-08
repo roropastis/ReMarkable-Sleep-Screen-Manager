@@ -151,4 +151,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Made with ❤️ for the reMarkable community**
+**Buy me a coffee [https://ko-fi.com/bigscorestudio]**
+
+**Made with ❤️ in Switzerland for the reMarkable community**
