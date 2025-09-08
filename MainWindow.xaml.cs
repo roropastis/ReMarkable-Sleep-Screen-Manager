@@ -248,7 +248,7 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
                     bmp.UriSource = new Uri(_imagePath);
                     bmp.EndInit();
                     Preview.Source = bmp;
-                    Log($"Image sélectionnée: {_imagePath}");
+                    Log($"{ResourceManager.GetString("ImageSelected")}: {_imagePath}");
                 }
                 catch (Exception ex)
                 {
@@ -267,21 +267,21 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
 
             try
             {
-                SetStatus("Test de connexion...");
+                SetStatus(ResourceManager.GetString("TestingConnection"));
                 await Task.Run(() =>
                 {
                     using var client = CreateSshClient(host, user, pass);
                     client.Connect();
                     var resp = client.RunCommand("uname -a");
-                    Dispatcher.Invoke(() => Log($"Connecté. {resp.Result.Trim()}"));
+                    Dispatcher.Invoke(() => Log($"{ResourceManager.GetString("Connected")}. {resp.Result.Trim()}"));
                     client.Disconnect();
                 });
 
-                SetStatus("OK");
+                SetStatus(ResourceManager.GetString("OK"));
             }
             catch (Exception ex)
             {
-                SetStatus("Erreur");
+                SetStatus(ResourceManager.GetString("Error"));
                 WpfMessageBox.Show(ex.Message, "Connexion", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
@@ -304,13 +304,13 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
 
             try
             {
-                SetStatus("Application en cours...");
+                SetStatus(ResourceManager.GetString("Applying"));
 
                 var tmp = _imagePath;
                 if (autoResize)
                 {
                     tmp = await Task.Run(() => ImageUtil.ResizeTo2160x1620(_imagePath!));
-                    Log($"Image redimensionnée → {tmp}");
+                    Log($"{ResourceManager.GetString("ImageResized")} → {tmp}");
                 }
 
                 await Task.Run(() =>
@@ -334,12 +334,12 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
                 });
 
 
-                SetStatus("Terminé ✔");
-                Log("Mets la tablette en veille pour voir l’écran.");
+                SetStatus(ResourceManager.GetString("Completed"));
+                Log(ResourceManager.GetString("PutTabletToSleep"));
             }
             catch (Exception ex)
             {
-                SetStatus("Erreur");
+                SetStatus(ResourceManager.GetString("Error"));
                 WpfMessageBox.Show(ex.Message, "Uploader & Appliquer", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -355,14 +355,14 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
 
             try
             {
-                SetStatus("Restauration...");
+                SetStatus(ResourceManager.GetString("Restoring"));
                 if (!File.Exists(BundledOriginal))
                 {
                     WpfMessageBox.Show(
                         $"Fichier original introuvable : {BundledOriginal}\n" +
                         "Ajoute Assets\\suspended_original.png au projet (Content, Copy always).",
                         "Restore", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    SetStatus("Prêt");
+                    SetStatus(ResourceManager.GetString("Ready"));
                     return;
                 }
 
@@ -387,12 +387,12 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
                 });
 
 
-                SetStatus("Restauré ✔");
-                Log("L’écran d’origine (bundled) a été restauré.");
+                SetStatus(ResourceManager.GetString("Restored"));
+                Log(ResourceManager.GetString("OriginalScreenRestored"));
             }
             catch (Exception ex)
             {
-                SetStatus("Erreur");
+                SetStatus(ResourceManager.GetString("Error"));
                 WpfMessageBox.Show(ex.Message, "Restore", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -418,20 +418,20 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
             if (GalleryList.Items.Count > 0) return; // déjà chargé
             try
             {
-                SetStatus("Chargement de la galerie...");
+                SetStatus(ResourceManager.GetString("LoadingGallery"));
                 var json = await _http.GetStringAsync(GalleryIndexUrl);
                 var cat = JsonSerializer.Deserialize<GalleryCatalog>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 _galleryItems.Clear();
                 foreach (var it in cat?.Items ?? new()) _galleryItems.Add(it);
                 GalleryList.ItemsSource = _galleryItems;
-                SetStatus("Galerie chargée");
+                SetStatus(ResourceManager.GetString("GalleryLoaded"));
                 
                 // Update gallery button texts after loading
                 UpdateGalleryButtonTexts();
             }
             catch (Exception ex)
             {
-                SetStatus("Erreur galerie");
+                SetStatus(ResourceManager.GetString("GalleryError"));
                 WpfMessageBox.Show(ex.Message, "Chargement galerie", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -447,8 +447,9 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
                     var border = FindVisualChild<Border>(container, "Tile");
                     if (border != null)
                     {
-                        var downloadButton = FindVisualChild<System.Windows.Controls.Button>(border, "DownloadButton");
-                        var installButton = FindVisualChild<System.Windows.Controls.Button>(border, "InstallButton");
+                        // Find buttons by their current content
+                        var downloadButton = FindButtonByContent(border, "Télécharger") ?? FindButtonByContent(border, "Download");
+                        var installButton = FindButtonByContent(border, "Installer") ?? FindButtonByContent(border, "Install");
                         
                         if (downloadButton != null)
                             downloadButton.Content = ResourceManager.GetString("DownloadButton");
@@ -457,6 +458,21 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
                     }
                 }
             }
+        }
+
+        private System.Windows.Controls.Button? FindButtonByContent(DependencyObject parent, string content)
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is System.Windows.Controls.Button button && button.Content?.ToString() == content)
+                    return button;
+                
+                var result = FindButtonByContent(child, content);
+                if (result != null)
+                    return result;
+            }
+            return null;
         }
 
         private T? FindVisualChild<T>(DependencyObject parent, string name) where T : DependencyObject
@@ -479,16 +495,16 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
             if ((sender as FrameworkElement)?.Tag is not GalleryItem item) return;
             try
             {
-                SetStatus("Téléchargement...");
+                SetStatus(ResourceManager.GetString("Downloading"));
                 var bytes = await _http.GetByteArrayAsync(item.download_url);
                 var tmp = Path.Combine(Path.GetTempPath(), $"rm_{item.Id}_{Guid.NewGuid():N}.png");
                 await File.WriteAllBytesAsync(tmp, bytes);
-                Log($"Téléchargé → {tmp}");
-                SetStatus("Téléchargé ✔");
+                Log($"{ResourceManager.GetString("DownloadedTo")} → {tmp}");
+                SetStatus(ResourceManager.GetString("Downloaded"));
             }
             catch (Exception ex)
             {
-                SetStatus("Erreur");
+                SetStatus(ResourceManager.GetString("Error"));
                 WpfMessageBox.Show(ex.Message, "Télécharger", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -504,7 +520,7 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
 
             try
             {
-                SetStatus("Installation depuis galerie...");
+                SetStatus(ResourceManager.GetString("InstallingFromGallery"));
 
                 // 1) Télécharger l'image
                 var bytes = await _http.GetByteArrayAsync(item.download_url);
@@ -537,12 +553,12 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
                     ssh.Disconnect();
                 });
 
-                SetStatus("Installé ✔");
-                Log($"Installé depuis galerie: {item.Title}");
+                SetStatus(ResourceManager.GetString("Installed"));
+                Log($"{ResourceManager.GetString("InstalledFromGallery")}: {item.Title}");
             }
             catch (Exception ex)
             {
-                SetStatus("Erreur");
+                SetStatus(ResourceManager.GetString("Error"));
                 WpfMessageBox.Show(ex.Message, "Installer", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -573,7 +589,7 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
 
             try
             {
-                SetStatus("Upload des images...");
+                SetStatus(ResourceManager.GetString("UploadingImages"));
                 await Task.Run(() =>
                 {
                     using var sftp = CreateSftpClient(host, user, pass);
@@ -593,11 +609,11 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
                     }
                     sftp.Disconnect();
                 });
-                SetStatus("OK");
+                SetStatus(ResourceManager.GetString("OK"));
             }
             catch (Exception ex)
             {
-                SetStatus("Erreur");
+                SetStatus(ResourceManager.GetString("Error"));
                 WpfMessageBox.Show(ex.Message, "Uploader dossier", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -610,7 +626,7 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
 
             try
             {
-                SetStatus("Installation rotation (hook)...");
+                SetStatus(ResourceManager.GetString("InstallingRotation"));
                 await Task.Run(() =>
                 {
                     using var sftp = CreateSftpClient(host, user, pass);
@@ -633,13 +649,13 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
                     ssh.Disconnect();
                 });
 
-                SetStatus("Rotation installée ✔");
-                RotationLogBox.AppendText("Rotation auto (hook) installée. Visible au deep sleep (~12 min).\n");
+                SetStatus(ResourceManager.GetString("RotationInstalled"));
+                RotationLogBox.AppendText(ResourceManager.GetString("AutoRotationInstalled") + "\n");
                 RotationLogBox.ScrollToEnd();
             }
             catch (Exception ex)
             {
-                SetStatus("Erreur");
+                SetStatus(ResourceManager.GetString("Error"));
                 WpfMessageBox.Show(ex.Message, "Installer rotation", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -652,7 +668,7 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
 
             try
             {
-                SetStatus("Désinstallation rotation...");
+                SetStatus(ResourceManager.GetString("UninstallingRotation"));
                 await Task.Run(() =>
                 {
                     using var ssh = CreateSshClient(host, user, pass);
@@ -676,13 +692,13 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
 
                     ssh.Disconnect();
                 });
-                SetStatus("Désinstallé ✔");
-                RotationLogBox.AppendText("Rotation auto désinstallée et tous les fichiers supprimés.\n");
+                SetStatus(ResourceManager.GetString("Uninstalled"));
+                RotationLogBox.AppendText(ResourceManager.GetString("AutoRotationUninstalled") + "\n");
                 RotationLogBox.ScrollToEnd();
             }
             catch (Exception ex)
             {
-                SetStatus("Erreur");
+                SetStatus(ResourceManager.GetString("Error"));
                 WpfMessageBox.Show(ex.Message, "Désinstaller rotation", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -696,7 +712,7 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
 
             try
             {
-                SetStatus("Test rotation...");
+                SetStatus(ResourceManager.GetString("TestingRotation"));
                 await Task.Run(() =>
                 {
                     using var ssh = CreateSshClient(host, user, pass);
@@ -705,13 +721,13 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
                     ssh.RunCommand("systemctl restart xochitl");
                     ssh.Disconnect();
                 });
-                SetStatus("OK");
-                RotationLogBox.AppendText("Test effectué (script + restart xochitl).\n");
+                SetStatus(ResourceManager.GetString("OK"));
+                RotationLogBox.AppendText(ResourceManager.GetString("TestCompleted") + "\n");
                 RotationLogBox.ScrollToEnd();
             }
             catch (Exception ex)
             {
-                SetStatus("Erreur");
+                SetStatus(ResourceManager.GetString("Error"));
                 WpfMessageBox.Show(ex.Message, "Tester rotation", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

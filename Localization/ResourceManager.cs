@@ -45,7 +45,6 @@ namespace RemarkableSleepScreenManager.Localization
                 "UploadApply" => _currentCulture.Name.StartsWith("fr") ? "Uploader & Appliquer" : "Upload & Apply",
                 "RestoreDefault" => _currentCulture.Name.StartsWith("fr") ? "Restaurer l'image par défaut" : "Restore default image",
                 "OutputLog" => _currentCulture.Name.StartsWith("fr") ? "Sortie / Log" : "Output / Log",
-                "Ready" => _currentCulture.Name.StartsWith("fr") ? "Prêt" : "Ready",
                 "Language" => _currentCulture.Name.StartsWith("fr") ? "Langue" : "Language",
                 "English" => "English",
                 "French" => "Français",
@@ -75,6 +74,49 @@ namespace RemarkableSleepScreenManager.Localization
                 "IpAddressLabel" => _currentCulture.Name.StartsWith("fr") ? "Adresse IP" : "IP Address",
                 "UsernameLabel" => _currentCulture.Name.StartsWith("fr") ? "Utilisateur" : "Username",
                 "PasswordLabel" => _currentCulture.Name.StartsWith("fr") ? "Mot de passe" : "Password",
+                
+                // Status messages
+                "TestingConnection" => _currentCulture.Name.StartsWith("fr") ? "Test de connexion..." : "Testing connection...",
+                "Connected" => _currentCulture.Name.StartsWith("fr") ? "Connecté" : "Connected",
+                "ConnectionFailed" => _currentCulture.Name.StartsWith("fr") ? "Connexion échouée" : "Connection failed",
+                "ConnectionError" => _currentCulture.Name.StartsWith("fr") ? "Erreur de connexion" : "Connection error",
+                "Error" => _currentCulture.Name.StartsWith("fr") ? "Erreur" : "Error",
+                "Ready" => _currentCulture.Name.StartsWith("fr") ? "Prêt" : "Ready",
+                "Completed" => _currentCulture.Name.StartsWith("fr") ? "Terminé ✔" : "Completed ✓",
+                "Restored" => _currentCulture.Name.StartsWith("fr") ? "Restauré ✔" : "Restored ✓",
+                "Downloaded" => _currentCulture.Name.StartsWith("fr") ? "Téléchargé ✔" : "Downloaded ✓",
+                "Installed" => _currentCulture.Name.StartsWith("fr") ? "Installé ✔" : "Installed ✓",
+                "Uninstalled" => _currentCulture.Name.StartsWith("fr") ? "Désinstallé ✔" : "Uninstalled ✓",
+                "RotationInstalled" => _currentCulture.Name.StartsWith("fr") ? "Rotation installée ✔" : "Rotation installed ✓",
+                
+                // Log messages
+                "ImageSelected" => _currentCulture.Name.StartsWith("fr") ? "Image sélectionnée" : "Image selected",
+                "ImageResized" => _currentCulture.Name.StartsWith("fr") ? "Image redimensionnée" : "Image resized",
+                "PutTabletToSleep" => _currentCulture.Name.StartsWith("fr") ? "Mets la tablette en veille pour voir l'écran." : "Put the tablet to sleep to see the new screen.",
+                "OriginalScreenRestored" => _currentCulture.Name.StartsWith("fr") ? "L'écran d'origine (bundled) a été restauré." : "Original bundled screen has been restored.",
+                "DownloadedTo" => _currentCulture.Name.StartsWith("fr") ? "Téléchargé" : "Downloaded",
+                "InstalledFromGallery" => _currentCulture.Name.StartsWith("fr") ? "Installé depuis galerie" : "Installed from gallery",
+                "ConnectionTestSuccessful" => _currentCulture.Name.StartsWith("fr") ? "Test de connexion réussi" : "Connection test successful",
+                "ConnectionTestFailed" => _currentCulture.Name.StartsWith("fr") ? "Test de connexion échoué" : "Connection test failed",
+                "FolderSelected" => _currentCulture.Name.StartsWith("fr") ? "Dossier sélectionné" : "Folder selected",
+                "Uploaded" => _currentCulture.Name.StartsWith("fr") ? "Uploadé" : "Uploaded",
+                "AutoRotationInstalled" => _currentCulture.Name.StartsWith("fr") ? "Rotation auto (hook) installée. Visible au deep sleep (~12 min)." : "Auto rotation (hook) installed. Visible after deep sleep (~12 min).",
+                "AutoRotationUninstalled" => _currentCulture.Name.StartsWith("fr") ? "Rotation auto désinstallée et tous les fichiers supprimés." : "Auto rotation uninstalled and all files removed.",
+                "TestCompleted" => _currentCulture.Name.StartsWith("fr") ? "Test effectué (script + restart xochitl)." : "Test completed (script + restart xochitl).",
+                
+                // Process messages
+                "Applying" => _currentCulture.Name.StartsWith("fr") ? "Application en cours..." : "Applying...",
+                "Restoring" => _currentCulture.Name.StartsWith("fr") ? "Restauration..." : "Restoring...",
+                "LoadingGallery" => _currentCulture.Name.StartsWith("fr") ? "Chargement de la galerie..." : "Loading gallery...",
+                "GalleryLoaded" => _currentCulture.Name.StartsWith("fr") ? "Galerie chargée" : "Gallery loaded",
+                "GalleryError" => _currentCulture.Name.StartsWith("fr") ? "Erreur galerie" : "Gallery error",
+                "Downloading" => _currentCulture.Name.StartsWith("fr") ? "Téléchargement..." : "Downloading...",
+                "InstallingFromGallery" => _currentCulture.Name.StartsWith("fr") ? "Installation depuis galerie..." : "Installing from gallery...",
+                "UploadingImages" => _currentCulture.Name.StartsWith("fr") ? "Upload des images..." : "Uploading images...",
+                "InstallingRotation" => _currentCulture.Name.StartsWith("fr") ? "Installation rotation (hook)..." : "Installing rotation (hook)...",
+                "UninstallingRotation" => _currentCulture.Name.StartsWith("fr") ? "Désinstallation rotation..." : "Uninstalling rotation...",
+                "TestingRotation" => _currentCulture.Name.StartsWith("fr") ? "Test rotation..." : "Testing rotation...",
+                
                 _ => key
             };
         }

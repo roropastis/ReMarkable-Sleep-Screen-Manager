@@ -209,24 +209,24 @@ namespace RemarkableSleepScreenManager.ViewModels
             try
             {
                 IsLoading = true;
-                StatusText = "Testing connection...";
+                StatusText = ResourceManager.GetString("TestingConnection");
                 
                 var success = await _sshService.TestConnectionAsync(_connectionSettings);
                 if (success)
                 {
-                    StatusText = "Connected successfully";
-                    Log("Connection test successful");
+                    StatusText = ResourceManager.GetString("Connected");
+                    Log(ResourceManager.GetString("ConnectionTestSuccessful"));
                 }
                 else
                 {
-                    StatusText = "Connection failed";
-                    Log("Connection test failed");
+                    StatusText = ResourceManager.GetString("ConnectionFailed");
+                    Log(ResourceManager.GetString("ConnectionTestFailed"));
                 }
             }
             catch (Exception ex)
             {
-                StatusText = "Error";
-                Log($"Connection error: {ex.Message}");
+                StatusText = ResourceManager.GetString("Error");
+                Log($"{ResourceManager.GetString("ConnectionError")}: {ex.Message}");
                 WpfMessageBox.Show(ex.Message, "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
@@ -254,7 +254,7 @@ namespace RemarkableSleepScreenManager.ViewModels
                     bitmap.UriSource = new Uri(ImagePath);
                     bitmap.EndInit();
                     PreviewImage = bitmap;
-                    Log($"Image selected: {ImagePath}");
+                    Log($"{ResourceManager.GetString("ImageSelected")}: {ImagePath}");
                 }
                 catch (Exception ex)
                 {
@@ -280,7 +280,7 @@ namespace RemarkableSleepScreenManager.ViewModels
                 if (AutoResize)
                 {
                     imageToUpload = await _imageService.ResizeToPaperProAsync(ImagePath);
-                    Log($"Image resized → {imageToUpload}");
+                    Log($"{ResourceManager.GetString("ImageResized")} → {imageToUpload}");
                 }
 
                 await _sshService.UploadFileAsync(_connectionSettings, imageToUpload, "/home/root/suspended.png");
@@ -292,13 +292,13 @@ namespace RemarkableSleepScreenManager.ViewModels
                 var result = await _sshService.ExecuteCommandAsync(_connectionSettings, command);
                 Log(result);
 
-                StatusText = "Completed ✓";
-                Log("Put the tablet to sleep to see the new screen.");
+                StatusText = ResourceManager.GetString("Completed");
+                Log(ResourceManager.GetString("PutTabletToSleep"));
             }
             catch (Exception ex)
             {
-                StatusText = "Error";
-                Log($"Error: {ex.Message}");
+                StatusText = ResourceManager.GetString("Error");
+                Log($"{ResourceManager.GetString("Error")}: {ex.Message}");
                 WpfMessageBox.Show(ex.Message, "Upload & Apply Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
@@ -334,13 +334,13 @@ namespace RemarkableSleepScreenManager.ViewModels
                 var result = await _sshService.ExecuteCommandAsync(_connectionSettings, command);
                 Log(result);
 
-                StatusText = "Restored ✓";
-                Log("Original bundled screen has been restored.");
+                StatusText = ResourceManager.GetString("Restored");
+                Log(ResourceManager.GetString("OriginalScreenRestored"));
             }
             catch (Exception ex)
             {
-                StatusText = "Error";
-                Log($"Error: {ex.Message}");
+                StatusText = ResourceManager.GetString("Error");
+                Log($"{ResourceManager.GetString("Error")}: {ex.Message}");
                 WpfMessageBox.Show(ex.Message, "Restore Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
@@ -359,7 +359,7 @@ namespace RemarkableSleepScreenManager.ViewModels
             if (dialog.ShowDialog() == WF.DialogResult.OK)
             {
                 ScreensFolderPath = dialog.SelectedPath;
-                RotationLog($"Folder selected: {dialog.SelectedPath}");
+                RotationLog($"{ResourceManager.GetString("FolderSelected")}: {dialog.SelectedPath}");
             }
         }
 
@@ -383,15 +383,15 @@ namespace RemarkableSleepScreenManager.ViewModels
                 {
                     var remotePath = "/home/root/screens/" + Path.GetFileName(file);
                     await _sshService.UploadFileAsync(_connectionSettings, file, remotePath);
-                    RotationLog($"Uploaded: {Path.GetFileName(file)}");
+                    RotationLog($"{ResourceManager.GetString("Uploaded")}: {Path.GetFileName(file)}");
                 }
 
-                StatusText = "OK";
+                StatusText = ResourceManager.GetString("OK");
             }
             catch (Exception ex)
             {
-                StatusText = "Error";
-                Log($"Error: {ex.Message}");
+                StatusText = ResourceManager.GetString("Error");
+                Log($"{ResourceManager.GetString("Error")}: {ex.Message}");
                 WpfMessageBox.Show(ex.Message, "Upload Folder Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
@@ -449,13 +449,13 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
                     await _sshService.ExecuteCommandAsync(_connectionSettings, cmd);
                 }
 
-                StatusText = "Rotation installed ✓";
-                RotationLog("Auto rotation (hook) installed. Visible after deep sleep (~12 min).");
+                StatusText = ResourceManager.GetString("RotationInstalled");
+                RotationLog(ResourceManager.GetString("AutoRotationInstalled"));
             }
             catch (Exception ex)
             {
-                StatusText = "Error";
-                Log($"Error: {ex.Message}");
+                StatusText = ResourceManager.GetString("Error");
+                Log($"{ResourceManager.GetString("Error")}: {ex.Message}");
                 WpfMessageBox.Show(ex.Message, "Install Rotation Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
@@ -486,13 +486,13 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
                     await _sshService.ExecuteCommandAsync(_connectionSettings, cmd);
                 }
 
-                StatusText = "Uninstalled ✓";
-                RotationLog("Auto rotation uninstalled and all files removed.");
+                StatusText = ResourceManager.GetString("Uninstalled");
+                RotationLog(ResourceManager.GetString("AutoRotationUninstalled"));
             }
             catch (Exception ex)
             {
-                StatusText = "Error";
-                Log($"Error: {ex.Message}");
+                StatusText = ResourceManager.GetString("Error");
+                Log($"{ResourceManager.GetString("Error")}: {ex.Message}");
                 WpfMessageBox.Show(ex.Message, "Uninstall Rotation Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
@@ -511,13 +511,13 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
                 await _sshService.ExecuteCommandAsync(_connectionSettings, "/home/root/change-sleep.sh");
                 await _sshService.ExecuteCommandAsync(_connectionSettings, "systemctl restart xochitl");
 
-                StatusText = "OK";
-                RotationLog("Test completed (script + restart xochitl).");
+                StatusText = ResourceManager.GetString("OK");
+                RotationLog(ResourceManager.GetString("TestCompleted"));
             }
             catch (Exception ex)
             {
-                StatusText = "Error";
-                Log($"Error: {ex.Message}");
+                StatusText = ResourceManager.GetString("Error");
+                Log($"{ResourceManager.GetString("Error")}: {ex.Message}");
                 WpfMessageBox.Show(ex.Message, "Test Rotation Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
@@ -533,16 +533,16 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
             try
             {
                 IsLoading = true;
-                StatusText = "Downloading...";
+                StatusText = ResourceManager.GetString("Downloading");
 
                 var tempPath = await _imageService.DownloadImageAsync(item.DownloadUrl);
-                Log($"Downloaded → {tempPath}");
-                StatusText = "Downloaded ✓";
+                Log($"{ResourceManager.GetString("DownloadedTo")} → {tempPath}");
+                StatusText = ResourceManager.GetString("Downloaded");
             }
             catch (Exception ex)
             {
-                StatusText = "Error";
-                Log($"Error: {ex.Message}");
+                StatusText = ResourceManager.GetString("Error");
+                Log($"{ResourceManager.GetString("Error")}: {ex.Message}");
                 WpfMessageBox.Show(ex.Message, "Download Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
@@ -581,13 +581,13 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
                 var result = await _sshService.ExecuteCommandAsync(_connectionSettings, command);
                 Log(result);
 
-                StatusText = "Installed ✓";
-                Log($"Installed from gallery: {item.Title}");
+                StatusText = ResourceManager.GetString("Installed");
+                Log($"{ResourceManager.GetString("InstalledFromGallery")}: {item.Title}");
             }
             catch (Exception ex)
             {
-                StatusText = "Error";
-                Log($"Error: {ex.Message}");
+                StatusText = ResourceManager.GetString("Error");
+                Log($"{ResourceManager.GetString("Error")}: {ex.Message}");
                 WpfMessageBox.Show(ex.Message, "Install Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
@@ -601,15 +601,15 @@ ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system
             try
             {
                 IsLoading = true;
-                StatusText = "Loading gallery...";
+                StatusText = ResourceManager.GetString("LoadingGallery");
                 
                 await _galleryService.LoadGalleryAsync();
-                StatusText = "Gallery loaded";
+                StatusText = ResourceManager.GetString("GalleryLoaded");
             }
             catch (Exception ex)
             {
-                StatusText = "Gallery error";
-                Log($"Error: {ex.Message}");
+                StatusText = ResourceManager.GetString("GalleryError");
+                Log($"{ResourceManager.GetString("Error")}: {ex.Message}");
                 WpfMessageBox.Show(ex.Message, "Gallery Loading Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
