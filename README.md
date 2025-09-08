@@ -34,6 +34,7 @@ A modern **Windows (WPF, .NET 8)** application that allows you to easily change 
 - **English** and **Français** language support
 - Easy language switching
 - Localized interface and messages
+- 📖 [Internationalization Guide](docs/INTERNATIONALIZATION.md)
 
 ---
 
@@ -105,22 +106,25 @@ The application follows **MVVM pattern** with:
 
 We welcome contributions to improve the project! Here's how you can help:
 
+> 📋 **For detailed contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md)**
+
 ### 🐛 **Bug Reports & Feature Requests**
-- **Issues**: Report bugs or request new features via [GitHub Issues](https://github.com/roropastis/ReMarkable-Sleep-Screen-Manager/issues)
-- **Discussions**: Share ideas and feedback via [GitHub Discussions](https://github.com/roropastis/ReMarkable-Sleep-Screen-Manager/discussions)
+- **🐛 Bug Reports**: Use the [Bug Report Template](https://github.com/roropastis/ReMarkable-Sleep-Screen-Manager/issues/new?template=bug_report.md)
+- **💡 Feature Requests**: Use the [Feature Request Template](https://github.com/roropastis/ReMarkable-Sleep-Screen-Manager/issues/new?template=feature_request.md)
+- **💬 General Discussion**: [GitHub Discussions](https://github.com/roropastis/ReMarkable-Sleep-Screen-Manager/discussions)
 
 ### 💻 **Code Contributions**
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+5. Open a [Pull Request](https://github.com/roropastis/ReMarkable-Sleep-Screen-Manager/compare) (template will be provided)
 
 **Note**: All code changes are reviewed and approved by the project maintainer.
 
 ### 🖼️ **Gallery Images**
+- **🖼️ Image Suggestions**: Use the [Gallery Suggestion Template](https://github.com/roropastis/ReMarkable-Sleep-Screen-Manager/issues/new?template=gallery_suggestion.md)
 - **Gallery images are managed by the project maintainer**
-- If you have images to suggest, please open an Issue with your suggestions
 - Images must be high-quality, appropriate, and follow the project's style guidelines
 
 ---
