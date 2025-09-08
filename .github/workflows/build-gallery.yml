@@ -1,36 +1,37 @@
-name: Build Gallery
+name: Build gallery
 
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'gallery-src/**'
-      - 'scripts/**'
-      - 'docs/index.html'
-      - '.github/workflows/build-gallery.yml'
-  workflow_dispatch: {}
 
 permissions:
   contents: write
 
 jobs:
   build:
+    # Skip if the workflow was triggered by the bot itself
+    if: github.actor != 'github-actions[bot]'
+
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
+      - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
 
-      - name: Show tree (before)
+      - name: Configure git
         run: |
-          echo "== GITHUB_REPOSITORY: $GITHUB_REPOSITORY"
-          ls -la
-          echo "-----"
-          test -d docs && find docs -maxdepth 3 -type d -print || true
-          echo "-----"
-          test -d gallery-src && find gallery-src -maxdepth 3 -type d -print || true
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Setup Python
+      - name: Rebase onto latest main
+        run: |
+          git fetch origin main
+          git checkout main
+          git pull --rebase origin main
+
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -39,26 +40,18 @@ jobs:
         run: |
           python -m pip install -U pip
           pip install -r requirements.txt
-          python -c "import PIL, sys; print('Pillow', PIL.__version__)"
 
-      - name: Generate gallery (thumbs + index.json)
-        run: |
-          python scripts/generate_gallery.py
+      - name: Generate gallery
+        run: python Scripts/generate_gallery.py
 
-      - name: Show tree (after)
+      - name: Commit and push changes
         run: |
-          find docs/gallery -maxdepth 3 -type f -print || true
-          echo "------ index.json ------"
-          cat docs/gallery/index.json || true
-
-      - name: Commit & push changes
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/gallery
-          if git diff --cached --quiet; then
-            echo "No changes."
+          if ! git diff --quiet; then
+            git add docs/gallery
+            git commit -m "chore(gallery): auto-generate thumbs and index.json [skip ci]"
+            # rebase again in case main moved since job start
+            git pull --rebase origin main || true
+            git push origin main
           else
-            git commit -m "chore(gallery): auto-generate thumbs and index.json"
-            git push
+            echo "No changes to commit."
           fi
