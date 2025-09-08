@@ -1,6 +1,6 @@
 # ReMarkable SleepScreen Manager
 
-A modern **Windows (WPF, .NET 8)** application that allows you to easily change the sleep screen of your **reMarkable** tablet (Paper Pro or RM2).  
+A modern **Windows (WPF, .NET 8)** application that allows you to easily change the sleep screen of your **reMarkable** tablet (Paper Pro).  
 
 ![Version](https://img.shields.io/badge/version-0.0.2-blue.svg)
 ![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)
@@ -15,7 +15,6 @@ A modern **Windows (WPF, .NET 8)** application that allows you to easily change 
 - **Image preview** with automatic resizing
 - **Auto-resize** to tablet resolution:
   - Paper Pro → `2160×1620` (portrait)
-  - RM2 → `1404×1872` (portrait)
 - Direct upload and application with UI restart
 - **Restore** button to revert to the default bundled image
 
