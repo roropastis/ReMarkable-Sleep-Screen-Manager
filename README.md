@@ -40,7 +40,7 @@ A modern **Windows (WPF, .NET 8)** application that allows you to easily change 
 
 ## 🖼️ Screenshots
 
-*Screenshots coming soon...*
+![RSSM](https://github.com/user-attachments/assets/b700206d-1ce5-4be6-9abb-15ea6a2bde3d)
 
 ---
 
