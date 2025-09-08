@@ -12,10 +12,12 @@
 		<SelfContained>true</SelfContained>
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 		<EnableWindowsTargeting>true</EnableWindowsTargeting>
+		<UseWindowsForms>true</UseWindowsForms>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Remove="Assets\suspended.png" />
+	  <None Remove="basic_picture_multiple.png" />
+	  <None Remove="image-icon-png-6.jpg" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -27,6 +29,11 @@
 	<ItemGroup>
 		<PackageReference Include="SSH.NET" Version="2023.0.0" />
 		<PackageReference Include="System.Drawing.Common" Version="8.0.8" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Resource Include="basic_picture_multiple.png" />
+	  <Resource Include="image-icon-png-6.jpg" />
 	</ItemGroup>
 
 </Project>

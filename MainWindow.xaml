@@ -1,8 +1,4 @@
-﻿<Window x:Class="RemarkableSleepScreenManager.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:RemarkableSleepScreenManager"
-        Title="Remarkable SleepScreen Manager" Height="1000" Width="1600">
+﻿<Window x:Class="RemarkableSleepScreenManager.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:RemarkableSleepScreenManager" Title="ReMarkable SleepScreen Manager" Height="853" Width="891" ResizeMode="CanMinimize" Icon="/image-icon-png-6.jpg">
     <Window.Resources>
         <!-- Portrait 3:4 -->
         <local:WidthToHeightConverter x:Key="W2H_3_4" Factor="1.3333333" />
@@ -21,14 +17,12 @@
             <RowDefinition Height="Auto"/>
             <!-- Footer -->
         </Grid.RowDefinitions>
-
         <!-- En-tête simple -->
         <DockPanel Grid.Row="0" Margin="0,0,0,8">
-            <TextBlock Text="Remarkable SleepScreen Manager" FontSize="18" FontWeight="Bold" />
+            <TextBlock FontSize="18" FontWeight="Bold" ><Run Text="Re"/><Run Language="fr-ch" Text="M"/><Run Text="arkable SleepScreen Manager"/></TextBlock>
         </DockPanel>
-
         <!-- Onglets -->
-        <TabControl Grid.Row="1">
+        <TabControl Grid.Row="1" Margin="0,146,0,10">
             <!-- ONGLET LOCAL (ton flux actuel) -->
             <TabItem Header="Local">
                 <Grid Margin="4">
@@ -40,59 +34,64 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-
                     <!-- Connexion -->
-                    <GroupBox Header="Connexion" Grid.ColumnSpan="2" Padding="10" Margin="0,0,0,10">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="140"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <TextBlock Text="Adresse IP" VerticalAlignment="Center"/>
-                            <TextBox x:Name="IpBox" Grid.Column="1" Margin="6,0" Text="10.11.99.1"/>
-                            <Button Grid.Column="2" Content="Tester" Click="OnTestClick" Padding="14,6"/>
-
-                            <TextBlock Grid.Row="1" Text="Utilisateur" VerticalAlignment="Center"/>
-                            <TextBox x:Name="UserBox" Grid.Column="1" Grid.Row="1" Margin="6,0" Text="root"/>
-
-                            <TextBlock Grid.Row="2" Text="Mot de passe" VerticalAlignment="Center"/>
-                            <PasswordBox x:Name="PassBox" Grid.Column="1" Grid.Row="2" Margin="6,0"/>
-                        </Grid>
-                    </GroupBox>
-
                     <!-- Image locale -->
-                    <GroupBox Header="Image (Paper Pro: 2160×1620)" Grid.Row="1" Padding="10" Margin="0,0,10,0">
-                        <DockPanel>
+                    <GroupBox Header="Image (Paper Pro: 2160×1620)" Grid.Row="1" Padding="10" Margin="0,0,10,0" Height="513" VerticalAlignment="Top">
+                        <DockPanel Height="489">
                             <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
                                 <Button Content="Choisir image…" Click="OnBrowseImage"/>
-                                <CheckBox x:Name="AutoResizeBox" Content="Redimensionner automatiquement à 2160×1620" Margin="12,0" IsChecked="True"/>
+                                <CheckBox x:Name="AutoResizeBox" Content="Redimensionner &#xD;&#xA;automatiquement à 2160×1620" Margin="12,0" IsChecked="True" Height="34" Width="198"/>
                             </StackPanel>
-                            <Border BorderBrush="#DDD" BorderThickness="1" CornerRadius="4" Padding="6">
-                                <Image x:Name="Preview" Stretch="Uniform" Height="320"/>
+                            <Border BorderBrush="#DDD" BorderThickness="1" CornerRadius="4" Padding="6" Height="410">
+                                <Image x:Name="Preview" Stretch="Uniform" Margin="0,-1,0,21"/>
                             </Border>
                         </DockPanel>
                     </GroupBox>
-
                     <!-- Actions & Log -->
-                    <GroupBox Header="Actions" Grid.Row="1" Grid.Column="1" Padding="10">
-                        <StackPanel>
+                    <GroupBox Header="Actions" Grid.Row="1" Grid.Column="1" Padding="10" Height="513" VerticalAlignment="Top">
+                        <StackPanel Height="478">
                             <Button Content="Uploader &amp; Appliquer" Click="OnApplyClick" Padding="10" Margin="0,0,0,6"/>
                             <Button Content="Restaurer l'image par défaut" Click="OnRestoreClick" Padding="10"/>
                             <TextBlock Text="Sortie / Log" FontWeight="Bold" Margin="0,12,0,4"/>
-                            <ScrollViewer Height="260" VerticalScrollBarVisibility="Auto">
-                                <TextBox x:Name="LogBox" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True"/>
+                            <ScrollViewer Height="355" VerticalScrollBarVisibility="Auto">
+                                <TextBox x:Name="LogBox" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" Height="355"/>
                             </ScrollViewer>
                         </StackPanel>
                     </GroupBox>
                 </Grid>
             </TabItem>
+
+            <!-- ONGLET ROTATION AUTO -->
+            <TabItem Header="Rotation auto">
+                <Grid Margin="4">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock
+               Foreground="Gray" Height="38" VerticalAlignment="Center" TextWrapping="Wrap"><Run Text="Installe une rotation automatique du sleep screen (Paper Pro). Les images conseillées : "/><Run Language="fr-ch" Text="2160x1620"/><Run Text=" portrait. "/><LineBreak/><Run Text="Le changement est visible a"/><Run Language="fr-ch" Text="près une sortie du"/><Run Text=" deep sleep (~12 min)."/></TextBlock>
+
+                    <StackPanel Grid.Row="1" Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <TextBox x:Name="ScreensFolderBox" Width="420" IsReadOnly="True"/>
+                            <Button Content="Choisir dossier…" Click="OnBrowseScreensFolder" Margin="8,0,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Button Content="Uploader dossier" Click="OnUploadScreensClick"/>
+                            <Button Content="Installer" Click="OnInstallRotationHook" Margin="8,0,0,0"/>
+                            <Button Content="Désinstaller" Click="OnUninstallRotation" Margin="8,0,0,0"/>
+                            <Button Content="Tester maintenant" Click="OnTestRotationNow" Margin="8,0,0,0"/>
+                        </StackPanel>
+                        <TextBlock FontWeight="Bold"><Run Text="Log"/><LineBreak/><Run/></TextBlock>
+                        <ScrollViewer Height="249" VerticalScrollBarVisibility="Auto">
+                            <TextBox x:Name="RotationLogBox" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" Height="249"/>
+                        </ScrollViewer>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
 
             <!-- ONGLET GALERIE (chargée depuis /docs/gallery/index.json) -->
             <TabItem Header="Galerie" x:Name="GalleryTab" Loaded="OnGalleryTabLoaded">
@@ -101,30 +100,20 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-
-                    <TextBlock Text="Parcourez et installez un écran de veille depuis la galerie en ligne."
-                               Foreground="Gray" Margin="0,0,0,8"/>
-
-                    <ListView x:Name="GalleryList"
-          Grid.Row="1"
-          Margin="0,0,0,4"
-          ScrollViewer.VerticalScrollBarVisibility="Auto"
-          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-          ScrollViewer.CanContentScroll="True">
+                    <TextBlock Text="Parcourez et installez un écran de veille depuis la galerie en ligne." Foreground="Gray" Margin="0,0,0,8"/>
+                    <ListView x:Name="GalleryList" Grid.Row="1" Margin="0,0,0,4" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.CanContentScroll="True">
                         <!-- 3 colonnes fixes -->
                         <ListView.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <UniformGrid Columns="3"/>
                             </ItemsPanelTemplate>
                         </ListView.ItemsPanel>
-
                         <!-- Très important: étirer le contenu pour que la colonne occupe la largeur -->
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                             </Style>
                         </ListView.ItemContainerStyle>
-
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <Border x:Name="Tile" BorderBrush="#DDD" BorderThickness="1" CornerRadius="8" Padding="8" Margin="6">
@@ -133,43 +122,52 @@
                                         <Border x:Name="Ph" Background="#F5F5F5" CornerRadius="6">
                                             <Grid Height="{Binding ActualWidth, ElementName=Ph, Converter={StaticResource W2H_3_4}}">
                                                 <!-- Image 'contain' : on voit toute la vignette -->
-                                                <Image Source="{Binding PreviewUrl}"
-                     Stretch="Uniform"
-                     HorizontalAlignment="Center"
-                     VerticalAlignment="Center"/>
+                                                <Image Source="{Binding preview_url}" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                             </Grid>
                                         </Border>
-
                                         <TextBlock Text="{Binding Title}" FontWeight="Bold" Margin="0,8,0,0"/>
                                         <TextBlock Text="{Binding Author}" Foreground="Gray" FontSize="11"/>
                                         <TextBlock Text="{Binding Resolution}" Foreground="Gray" FontSize="11" Margin="0,2,0,6"/>
-
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                            <Button Content="Télécharger" Margin="0,0,6,0"
-                    Click="OnDownloadFromGallery" Tag="{Binding}"/>
-                                            <Button Content="Installer"
-                    Click="OnInstallFromGallery" Tag="{Binding}"/>
+                                            <Button Content="Télécharger" Margin="0,0,6,0" Click="OnDownloadFromGallery" Tag="{Binding}"/>
+                                            <Button Content="Installer" Click="OnInstallFromGallery" Tag="{Binding}"/>
                                         </StackPanel>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-
-
                 </Grid>
             </TabItem>
         </TabControl>
-
         <!-- Status bar -->
         <StatusBar Grid.Row="2">
-            <StatusBarItem>
+            <StatusBarItem Height="22" VerticalAlignment="Bottom">
                 <TextBlock x:Name="StatusText" Text="Prêt"/>
             </StatusBarItem>
         </StatusBar>
-
         <!-- Footer séparé -->
-        <TextBlock Grid.Row="3" Text="© 2025 roropastis – Remarkable SleepScreen Manager v1.0.0"
-                   HorizontalAlignment="Center" Margin="0,4,0,0" FontSize="11" Foreground="Gray"/>
+        <TextBlock Grid.Row="3" HorizontalAlignment="Center" Margin="0,3,0,2" FontSize="11" Foreground="Gray"><Run Text="© 2025 r"/><Run Text="0ma1n"/><Run Text=" – Re"/><Run Language="fr-ch" Text="M"/><Run Text="arkable SleepScreen Manager v0.0.2"/></TextBlock>
+        <GroupBox Header="Connexion" Padding="10" Margin="0,9,10,0" Grid.Row="1" Height="128" VerticalAlignment="Top">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="140"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Adresse IP" VerticalAlignment="Top" Height="25" HorizontalAlignment="Left" Grid.ColumnSpan="2" Width="204"/>
+                <TextBox x:Name="IpBox" Grid.Column="1" Margin="6,0,339,16" Text="10.11.99.1" Width="240" Height="25" FontSize="14"/>
+                <Button Grid.Column="1" Content="Tester" Click="OnTestClick" Padding="14,6" Margin="322,18,233,36" Grid.RowSpan="3"/>
+                <TextBlock Text="Utilisateur" VerticalAlignment="Top" Margin="1,30,584,0" Grid.ColumnSpan="2" Grid.RowSpan="3" Height="25"/>
+                <TextBox x:Name="UserBox" Grid.Column="1" Margin="6,30,339,40" Text="root" Grid.RowSpan="3" Width="240" Height="25" FontSize="14"/>
+                <TextBlock Grid.Row="2" Text="Mot de passe" Margin="0,19,613,0" Height="25" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+                <PasswordBox x:Name="PassBox" Grid.Column="1" Grid.Row="2" Margin="6,19,339,10" Height="25" Width="240" FontSize="14"/>
+            </Grid>
+        </GroupBox>
     </Grid>
 </Window>

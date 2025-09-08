@@ -2,17 +2,20 @@ using Microsoft.Win32;
 using Renci.SshNet;
 using Renci.SshNet.Common;
 using System;
-using System.Collections.ObjectModel;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Net.Http;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.Net.Http;
+using System.Text.Json;
+using System.Collections.ObjectModel;
+using System.Text;
+using WF = System.Windows.Forms; // alias FolderBrowserDialog
+using Win32OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using WpfMessageBox = System.Windows.MessageBox;
 
 
 namespace RemarkableSleepScreenManager
@@ -34,16 +37,10 @@ namespace RemarkableSleepScreenManager
             public string License { get; set; } = "";
             public string Device { get; set; } = "paperpro";
             public string Resolution { get; set; } = "2160x1620";
-
-            [JsonPropertyName("preview_url")]
-            public string PreviewUrl { get; set; } = "";
-
-            [JsonPropertyName("download_url")]
-            public string DownloadUrl { get; set; } = "";
-
+            public string preview_url { get; set; } = "";
+            public string download_url { get; set; } = "";
             public List<string> Tags { get; set; } = new();
         }
-
 
         private static readonly HttpClient _http = new HttpClient();
         // URL de ton JSON servi par GitHub Pages via /docs
@@ -52,6 +49,34 @@ namespace RemarkableSleepScreenManager
 
         private readonly ObservableCollection<GalleryItem> _galleryItems = new();
 
+        // Script côté tablette : choisit un PNG aléatoire et le copie en suspended.png (avec log)
+        private const string ChangeSleepSh = @"#!/bin/sh
+set -e
+FOLDER=/home/root/screens
+DEST=/usr/share/remarkable/suspended.png
+LOG=/home/root/change-sleep.log
+
+echo ""$(date '+%F %T') - start"" >> ""$LOG""
+
+set -- ""$FOLDER""/*.png
+[ -e ""$1"" ] || { echo ""no png in $FOLDER"" >> ""$LOG""; exit 0; }
+
+count=$#
+idx=$((RANDOM % count + 1))
+file=$(eval echo \${$idx})
+
+mount -o remount,rw /
+cp ""$file"" ""$DEST""
+
+echo ""$(date '+%F %T') - set $(basename ""$file"")"" >> ""$LOG""
+exit 0
+";
+
+        // Drop-in systemd : remplace ExecStart pour exécuter d’abord le script, puis xochitl
+        private const string XochitlDropIn = @"[Service]
+ExecStart=
+ExecStart=/bin/sh -c '/home/root/change-sleep.sh; exec /usr/bin/xochitl --system'
+";
 
 
         public MainWindow()
@@ -68,11 +93,31 @@ namespace RemarkableSleepScreenManager
         }
         private void SetStatus(string s) => StatusText.Text = s;
 
+        //installation de la rotation automatique
+
+        private void UploadText(SftpClient sftp, string remotePath, string content)
+        {
+            using var ms = new MemoryStream(Encoding.UTF8.GetBytes(content));
+            sftp.UploadFile(ms, remotePath, true);
+        }
+
+        private void EnsureDir(SftpClient sftp, string path)
+        {
+            if (sftp.Exists(path)) return;
+            var parts = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            string cur = "";
+            foreach (var p in parts)
+            {
+                cur += "/" + p;
+                if (!sftp.Exists(cur)) sftp.CreateDirectory(cur);
+            }
+        }
+
 
         // Parcourir image
         private void OnBrowseImage(object sender, RoutedEventArgs e)
         {
-            var dlg = new OpenFileDialog { Title = "Choisir une image PNG", Filter = "PNG (*.png)|*.png" };
+            var dlg = new Win32OpenFileDialog { Title = "Choisir une image PNG", Filter = "PNG (*.png)|*.png" };
             if (dlg.ShowDialog() == true)
             {
                 _imagePath = dlg.FileName;
@@ -88,7 +133,7 @@ namespace RemarkableSleepScreenManager
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message, "Lecture image", MessageBoxButton.OK, MessageBoxImage.Error);
+                    WpfMessageBox.Show(ex.Message, "Lecture image", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -118,7 +163,7 @@ namespace RemarkableSleepScreenManager
             catch (Exception ex)
             {
                 SetStatus("Erreur");
-                MessageBox.Show(ex.Message, "Connexion", MessageBoxButton.OK, MessageBoxImage.Error);
+                WpfMessageBox.Show(ex.Message, "Connexion", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
         }
@@ -128,7 +173,7 @@ namespace RemarkableSleepScreenManager
         {
             if (string.IsNullOrEmpty(_imagePath))
             {
-                MessageBox.Show("Choisis une image PNG.");
+                WpfMessageBox.Show("Choisis une image PNG.");
                 return;
             }
 
@@ -145,7 +190,7 @@ namespace RemarkableSleepScreenManager
                 var tmp = _imagePath;
                 if (autoResize)
                 {
-                    tmp = await Task.Run(() => ImageUtil.ResizeTo1620x2160(_imagePath!));
+                    tmp = await Task.Run(() => ImageUtil.ResizeTo2160x1620(_imagePath!));
                     Log($"Image redimensionnée → {tmp}");
                 }
 
@@ -176,7 +221,7 @@ namespace RemarkableSleepScreenManager
             catch (Exception ex)
             {
                 SetStatus("Erreur");
-                MessageBox.Show(ex.Message, "Uploader & Appliquer", MessageBoxButton.OK, MessageBoxImage.Error);
+                WpfMessageBox.Show(ex.Message, "Uploader & Appliquer", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -194,7 +239,7 @@ namespace RemarkableSleepScreenManager
                 SetStatus("Restauration...");
                 if (!File.Exists(BundledOriginal))
                 {
-                    MessageBox.Show(
+                    WpfMessageBox.Show(
                         $"Fichier original introuvable : {BundledOriginal}\n" +
                         "Ajoute Assets\\suspended_original.png au projet (Content, Copy always).",
                         "Restore", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -229,7 +274,7 @@ namespace RemarkableSleepScreenManager
             catch (Exception ex)
             {
                 SetStatus("Erreur");
-                MessageBox.Show(ex.Message, "Restore", MessageBoxButton.OK, MessageBoxImage.Error);
+                WpfMessageBox.Show(ex.Message, "Restore", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -265,7 +310,7 @@ namespace RemarkableSleepScreenManager
             catch (Exception ex)
             {
                 SetStatus("Erreur galerie");
-                MessageBox.Show(ex.Message, "Chargement galerie", MessageBoxButton.OK, MessageBoxImage.Error);
+                WpfMessageBox.Show(ex.Message, "Chargement galerie", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -275,7 +320,7 @@ namespace RemarkableSleepScreenManager
             try
             {
                 SetStatus("Téléchargement...");
-                var bytes = await _http.GetByteArrayAsync(item.DownloadUrl);
+                var bytes = await _http.GetByteArrayAsync(item.download_url);
                 var tmp = Path.Combine(Path.GetTempPath(), $"rm_{item.Id}_{Guid.NewGuid():N}.png");
                 await File.WriteAllBytesAsync(tmp, bytes);
                 Log($"Téléchargé → {tmp}");
@@ -284,7 +329,7 @@ namespace RemarkableSleepScreenManager
             catch (Exception ex)
             {
                 SetStatus("Erreur");
-                MessageBox.Show(ex.Message, "Télécharger", MessageBoxButton.OK, MessageBoxImage.Error);
+                WpfMessageBox.Show(ex.Message, "Télécharger", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -292,6 +337,7 @@ namespace RemarkableSleepScreenManager
         {
             if ((sender as FrameworkElement)?.Tag is not GalleryItem item) return;
 
+            // Snapshot UI (ne pas lire les contrôles depuis Task.Run)
             var host = IpBox.Text.Trim();
             var user = UserBox.Text.Trim();
             var pass = PassBox.Password;
@@ -300,21 +346,17 @@ namespace RemarkableSleepScreenManager
             {
                 SetStatus("Installation depuis galerie...");
 
-                // 1) télécharger
-                var bytes = await _http.GetByteArrayAsync(item.DownloadUrl);
+                // 1) Télécharger l'image
+                var bytes = await _http.GetByteArrayAsync(item.download_url);
                 var tmp = Path.Combine(Path.GetTempPath(), $"rm_{item.Id}_{Guid.NewGuid():N}.png");
                 await File.WriteAllBytesAsync(tmp, bytes);
 
-                // 2) NE PAS redimensionner par défaut ; ne le faire que si la case est cochée
+                // 2) Redimensionner si nécessaire (Paper Pro attendu 2160x1620)
                 var final = tmp;
-                if (AutoResizeBox.IsChecked == true &&
-                    item.Device.Equals("paperpro", StringComparison.OrdinalIgnoreCase) &&
-                    !string.Equals(item.Resolution, "2160x1620", StringComparison.OrdinalIgnoreCase))
-                {
-                    final = await Task.Run(() => ImageUtil.ResizeTo1620x2160(tmp));
-                }
+                if (item.Device.Equals("paperpro", StringComparison.OrdinalIgnoreCase) && !string.Equals(item.Resolution, "2160x1620", StringComparison.OrdinalIgnoreCase))
+                    final = await Task.Run(() => ImageUtil.ResizeTo2160x1620(tmp));
 
-                // 3) upload + mv + restart
+                // 3) Upload + mv + restart (même logique que OnApplyClick)
                 await Task.Run(() =>
                 {
                     using (var sftp = CreateSftpClient(host, user, pass))
@@ -324,47 +366,219 @@ namespace RemarkableSleepScreenManager
                         sftp.UploadFile(fs, "/home/root/suspended.png", true);
                         sftp.Disconnect();
                     }
+
                     using var ssh = CreateSshClient(host, user, pass);
                     ssh.Connect();
-                    var r = ssh.RunCommand("mount -o remount,rw / && mv /home/root/suspended.png /usr/share/remarkable/suspended.png && systemctl restart xochitl");
+                    var r = ssh.RunCommand(
+                        "mount -o remount,rw / && " +
+                        "mv /home/root/suspended.png /usr/share/remarkable/suspended.png && " +
+                        "systemctl restart xochitl");
                     Dispatcher.Invoke(() => Log(r.Result + r.Error));
                     ssh.Disconnect();
                 });
 
                 SetStatus("Installé ✔");
-                Log($"Installé depuis galerie: {item.Title} (redimensionné: {(final != tmp ? "oui" : "non")})");
+                Log($"Installé depuis galerie: {item.Title}");
             }
             catch (Exception ex)
             {
                 SetStatus("Erreur");
-                MessageBox.Show(ex.Message, "Installer", MessageBoxButton.OK, MessageBoxImage.Error);
+                WpfMessageBox.Show(ex.Message, "Installer", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void OnBrowseScreensFolder(object sender, RoutedEventArgs e)
+        {
+            var dlg = new WF.FolderBrowserDialog { Description = "Choisir un dossier contenant des PNG (1620x2160 recommandé)" };
+            if (dlg.ShowDialog() == WF.DialogResult.OK)
+            {
+                ScreensFolderBox.Text = dlg.SelectedPath;
+                RotationLogBox.AppendText($"Dossier sélectionné: {dlg.SelectedPath}\n");
+                RotationLogBox.ScrollToEnd();
+            }
+        }
+
+        private async void OnUploadScreensClick(object sender, RoutedEventArgs e)
+        {
+            var local = ScreensFolderBox.Text.Trim();
+            if (string.IsNullOrEmpty(local) || !Directory.Exists(local))
+            {
+                WpfMessageBox.Show("Choisis un dossier d’images PNG.");
+                return;
+            }
+
+            var host = IpBox.Text.Trim();
+            var user = UserBox.Text.Trim();
+            var pass = PassBox.Password;
+
+            try
+            {
+                SetStatus("Upload des images...");
+                await Task.Run(() =>
+                {
+                    using var sftp = CreateSftpClient(host, user, pass);
+                    sftp.Connect();
+                    EnsureDir(sftp, "/home/root/screens");
+
+                    foreach (var path in Directory.GetFiles(local, "*.png"))
+                    {
+                        using var fs = File.OpenRead(path);
+                        var remote = "/home/root/screens/" + Path.GetFileName(path);
+                        sftp.UploadFile(fs, remote, true);
+                        Dispatcher.Invoke(() =>
+                        {
+                            RotationLogBox.AppendText($"Upload: {Path.GetFileName(path)}\n");
+                            RotationLogBox.ScrollToEnd();
+                        });
+                    }
+                    sftp.Disconnect();
+                });
+                SetStatus("OK");
+            }
+            catch (Exception ex)
+            {
+                SetStatus("Erreur");
+                WpfMessageBox.Show(ex.Message, "Uploader dossier", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void OnInstallRotationHook(object sender, RoutedEventArgs e)
+        {
+            var host = IpBox.Text.Trim();
+            var user = UserBox.Text.Trim();
+            var pass = PassBox.Password;
+
+            try
+            {
+                SetStatus("Installation rotation (hook)...");
+                await Task.Run(() =>
+                {
+                    using var sftp = CreateSftpClient(host, user, pass);
+                    sftp.Connect();
+                    // script
+                    UploadText(sftp, "/home/root/change-sleep.sh", ChangeSleepSh);
+                    // drop-in
+                    EnsureDir(sftp, "/etc/systemd/system/xochitl.service.d");
+                    UploadText(sftp, "/etc/systemd/system/xochitl.service.d/change-sleep.conf", XochitlDropIn);
+                    sftp.Disconnect();
+
+                    using var ssh = CreateSshClient(host, user, pass);
+                    ssh.Connect();
+                    // droits + CRLF -> LF
+                    ssh.RunCommand("chmod +x /home/root/change-sleep.sh");
+                    ssh.RunCommand("sed -i 's/\\r$//' /home/root/change-sleep.sh");
+                    // reload + restart
+                    ssh.RunCommand("systemctl daemon-reexec");
+                    ssh.RunCommand("systemctl restart xochitl");
+                    ssh.Disconnect();
+                });
+
+                SetStatus("Rotation installée ✔");
+                RotationLogBox.AppendText("Rotation auto (hook) installée. Visible au deep sleep (~12 min).\n");
+                RotationLogBox.ScrollToEnd();
+            }
+            catch (Exception ex)
+            {
+                SetStatus("Erreur");
+                WpfMessageBox.Show(ex.Message, "Installer rotation", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void OnUninstallRotation(object sender, RoutedEventArgs e)
+        {
+            var host = IpBox.Text.Trim();
+            var user = UserBox.Text.Trim();
+            var pass = PassBox.Password;
+
+            try
+            {
+                SetStatus("Désinstallation rotation...");
+                await Task.Run(() =>
+                {
+                    using var ssh = CreateSshClient(host, user, pass);
+                    ssh.Connect();
+
+                    // Supprimer drop-in systemd
+                    ssh.RunCommand("rm -f /etc/systemd/system/xochitl.service.d/change-sleep.conf");
+
+                    // Supprimer script
+                    ssh.RunCommand("rm -f /home/root/change-sleep.sh");
+
+                    // Supprimer log
+                    ssh.RunCommand("rm -f /home/root/change-sleep.log");
+
+                    // Supprimer dossier screens et son contenu (png)
+                    ssh.RunCommand("rm -rf /home/root/screens");
+
+                    // Reload systemd et restart xochitl
+                    ssh.RunCommand("systemctl daemon-reexec");
+                    ssh.RunCommand("systemctl restart xochitl");
+
+                    ssh.Disconnect();
+                });
+                SetStatus("Désinstallé ✔");
+                RotationLogBox.AppendText("Rotation auto désinstallée et tous les fichiers supprimés.\n");
+                RotationLogBox.ScrollToEnd();
+            }
+            catch (Exception ex)
+            {
+                SetStatus("Erreur");
+                WpfMessageBox.Show(ex.Message, "Désinstaller rotation", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+
+        private async void OnTestRotationNow(object sender, RoutedEventArgs e)
+        {
+            var host = IpBox.Text.Trim();
+            var user = UserBox.Text.Trim();
+            var pass = PassBox.Password;
+
+            try
+            {
+                SetStatus("Test rotation...");
+                await Task.Run(() =>
+                {
+                    using var ssh = CreateSshClient(host, user, pass);
+                    ssh.Connect();
+                    ssh.RunCommand("/home/root/change-sleep.sh");
+                    ssh.RunCommand("systemctl restart xochitl");
+                    ssh.Disconnect();
+                });
+                SetStatus("OK");
+                RotationLogBox.AppendText("Test effectué (script + restart xochitl).\n");
+                RotationLogBox.ScrollToEnd();
+            }
+            catch (Exception ex)
+            {
+                SetStatus("Erreur");
+                WpfMessageBox.Show(ex.Message, "Tester rotation", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
 
         // Util redimensionnement simple (System.Drawing.Windows-only)
         internal static class ImageUtil
         {
-            // Redimensionne en PNG 2160x1620 avec fond blanc ; renvoie un chemin temp.
-            public static string ResizeTo1620x2160(string path)
+            // Redimensionne en PNG 1620x2160 portrait ; renvoie un chemin temp.
+            public static string ResizeTo2160x1620(string path)
             {
-                int targetW = 1620;
-                int targetH = 2160;
-
                 using var src = Image.FromFile(path);
-                using var bmp = new Bitmap(targetW, targetH);
+                // ← dimensions correctes (largeur 1620, hauteur 2160)
+                using var bmp = new Bitmap(1620, 2160);
                 using (var g = Graphics.FromImage(bmp))
                 {
                     g.InterpolationMode = InterpolationMode.HighQualityBicubic;
                     g.SmoothingMode = SmoothingMode.HighQuality;
                     g.PixelOffsetMode = PixelOffsetMode.HighQuality;
                     g.CompositingQuality = CompositingQuality.HighQuality;
-                    g.FillRectangle(Brushes.White, 0, 0, targetW, targetH);
+                    g.FillRectangle(Brushes.White, 0, 0, 1620, 2160);
 
-                    var ratio = Math.Min((float)targetW / src.Width, (float)targetH / src.Height);
+                    var ratio = Math.Min(1620f / src.Width, 2160f / src.Height);
                     var w = (int)(src.Width * ratio);
                     var h = (int)(src.Height * ratio);
-                    var x = (targetW - w) / 2;
-                    var y = (targetH - h) / 2;
+                    var x = (1620 - w) / 2;
+                    var y = (2160 - h) / 2;
                     g.DrawImage(src, x, y, w, h);
                 }
                 var tmp = Path.Combine(Path.GetTempPath(), $"rm_suspended_{Guid.NewGuid():N}.png");
@@ -373,5 +587,6 @@ namespace RemarkableSleepScreenManager
             }
 
         }
+
     }
 }

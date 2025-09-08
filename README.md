@@ -11,7 +11,6 @@ Une petite application **Windows (WPF, .NET 8)** qui permet de changer facilemen
 - Sélection et **prévisualisation** d’une image PNG.
 - **Redimensionnement automatique** à la résolution de la tablette :
   - Paper Pro → `2160×1620`
-  - RM2 (support à venir) → `1404×1872`
 - Upload et application directe sur la tablette (avec redémarrage de l’UI).
 - Bouton **Restore** qui restaure l’image par défaut incluse dans l’app (`Assets/suspended.png`).
 - Interface légère et portable : un seul `.exe`.
