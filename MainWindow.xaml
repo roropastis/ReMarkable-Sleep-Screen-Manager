@@ -1,7 +1,8 @@
-﻿<Window x:Class="RemarkableSleepScreenManager.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Remarkable SleepScreen Manager" Height="560" Width="860">
+﻿<Window x:Class="RemarkableSleepScreenManager.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:RemarkableSleepScreenManager" Title="Remarkable SleepScreen Manager" Height="715" Width="860">
+    <Window.Resources>
+        <!-- Portrait 3:4 -->
+        <local:WidthToHeightConverter x:Key="W2H_3_4" Factor="1.3333333" />
+    </Window.Resources>
     <Grid Margin="16">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -16,12 +17,10 @@
             <RowDefinition Height="Auto"/>
             <!-- Footer -->
         </Grid.RowDefinitions>
-
         <!-- En-tête simple -->
         <DockPanel Grid.Row="0" Margin="0,0,0,8">
             <TextBlock Text="Remarkable SleepScreen Manager" FontSize="18" FontWeight="Bold" />
         </DockPanel>
-
         <!-- Onglets -->
         <TabControl Grid.Row="1">
             <!-- ONGLET LOCAL (ton flux actuel) -->
@@ -35,7 +34,6 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-
                     <!-- Connexion -->
                     <GroupBox Header="Connexion" Grid.ColumnSpan="2" Padding="10" Margin="0,0,0,10">
                         <Grid>
@@ -49,19 +47,15 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-
                             <TextBlock Text="Adresse IP" VerticalAlignment="Center"/>
                             <TextBox x:Name="IpBox" Grid.Column="1" Margin="6,0" Text="10.11.99.1"/>
                             <Button Grid.Column="2" Content="Tester" Click="OnTestClick" Padding="14,6"/>
-
                             <TextBlock Grid.Row="1" Text="Utilisateur" VerticalAlignment="Center"/>
                             <TextBox x:Name="UserBox" Grid.Column="1" Grid.Row="1" Margin="6,0" Text="root"/>
-
                             <TextBlock Grid.Row="2" Text="Mot de passe" VerticalAlignment="Center"/>
                             <PasswordBox x:Name="PassBox" Grid.Column="1" Grid.Row="2" Margin="6,0"/>
                         </Grid>
                     </GroupBox>
-
                     <!-- Image locale -->
                     <GroupBox Header="Image (Paper Pro: 2160×1620)" Grid.Row="1" Padding="10" Margin="0,0,10,0">
                         <DockPanel>
@@ -74,7 +68,6 @@
                             </Border>
                         </DockPanel>
                     </GroupBox>
-
                     <!-- Actions & Log -->
                     <GroupBox Header="Actions" Grid.Row="1" Grid.Column="1" Padding="10">
                         <StackPanel>
@@ -88,7 +81,6 @@
                     </GroupBox>
                 </Grid>
             </TabItem>
-
             <!-- ONGLET GALERIE (chargée depuis /docs/gallery/index.json) -->
             <TabItem Header="Galerie" x:Name="GalleryTab" Loaded="OnGalleryTabLoaded">
                 <Grid Margin="4">
@@ -96,51 +88,53 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-
-                    <TextBlock Text="Parcourez et installez un écran de veille depuis la galerie en ligne."
-                               Foreground="Gray" Margin="0,0,0,8"/>
-
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                        <ListView x:Name="GalleryList" Margin="0,0,0,4">
-                            <ListView.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel/>
-                                </ItemsPanelTemplate>
-                            </ListView.ItemsPanel>
-
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <Border BorderBrush="#DDD" BorderThickness="1" CornerRadius="8" Padding="8" Margin="6" Width="240">
-                                        <StackPanel>
-                                            <Image Source="{Binding PreviewUrl}" Height="130" Stretch="UniformToFill" Margin="0,0,0,8"/>
-                                            <TextBlock Text="{Binding Title}" FontWeight="Bold"/>
-                                            <TextBlock Text="{Binding Author}" Foreground="Gray" FontSize="11"/>
-                                            <TextBlock Text="{Binding Resolution}" Foreground="Gray" FontSize="11" Margin="0,2,0,6"/>
-                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                                <Button Content="Télécharger" Margin="0,0,6,0"
-                                                        Click="OnDownloadFromGallery" Tag="{Binding}"/>
-                                                <Button Content="Installer"
-                                                        Click="OnInstallFromGallery" Tag="{Binding}"/>
-                                            </StackPanel>
+                    <TextBlock Text="Parcourez et installez un écran de veille depuis la galerie en ligne." Foreground="Gray" Margin="0,0,0,8"/>
+                    <ListView x:Name="GalleryList" Grid.Row="1" Margin="0,0,0,4" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.CanContentScroll="True">
+                        <!-- 3 colonnes fixes -->
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="3"/>
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+                        <!-- Très important: étirer le contenu pour que la colonne occupe la largeur -->
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Border x:Name="Tile" BorderBrush="#DDD" BorderThickness="1" CornerRadius="8" Padding="8" Margin="6">
+                                    <StackPanel>
+                                        <!-- Placeholder portrait 3:4 : Hauteur = Largeur × 4/3 -->
+                                        <Border x:Name="Ph" Background="#F5F5F5" CornerRadius="6">
+                                            <Grid Height="{Binding ActualWidth, ElementName=Ph, Converter={StaticResource W2H_3_4}}">
+                                                <!-- Image 'contain' : on voit toute la vignette -->
+                                                <Image Source="{Binding preview_url}" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="{Binding Title}" FontWeight="Bold" Margin="0,8,0,0"/>
+                                        <TextBlock Text="{Binding Author}" Foreground="Gray" FontSize="11"/>
+                                        <TextBlock Text="{Binding Resolution}" Foreground="Gray" FontSize="11" Margin="0,2,0,6"/>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <Button Content="Télécharger" Margin="0,0,6,0" Click="OnDownloadFromGallery" Tag="{Binding}"/>
+                                            <Button Content="Installer" Click="OnInstallFromGallery" Tag="{Binding}"/>
                                         </StackPanel>
-                                    </Border>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </ScrollViewer>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
                 </Grid>
             </TabItem>
         </TabControl>
-
         <!-- Status bar -->
         <StatusBar Grid.Row="2">
             <StatusBarItem>
                 <TextBlock x:Name="StatusText" Text="Prêt"/>
             </StatusBarItem>
         </StatusBar>
-
         <!-- Footer séparé -->
-        <TextBlock Grid.Row="3" Text="© 2025 roropastis – Remarkable SleepScreen Manager v1.0.0"
-                   HorizontalAlignment="Center" Margin="0,4,0,0" FontSize="11" Foreground="Gray"/>
+        <TextBlock Grid.Row="3" Text="© 2025 roropastis – Remarkable SleepScreen Manager v0.0.2" HorizontalAlignment="Center" Margin="0,4,0,0" FontSize="11" Foreground="Gray"/>
     </Grid>
 </Window>

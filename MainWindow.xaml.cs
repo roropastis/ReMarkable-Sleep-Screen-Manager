@@ -33,8 +33,8 @@ namespace RemarkableSleepScreenManager
             public string License { get; set; } = "";
             public string Device { get; set; } = "paperpro";
             public string Resolution { get; set; } = "2160x1620";
-            public string PreviewUrl { get; set; } = "";
-            public string DownloadUrl { get; set; } = "";
+            public string preview_url { get; set; } = "";
+            public string download_url { get; set; } = "";
             public List<string> Tags { get; set; } = new();
         }
 
@@ -268,7 +268,7 @@ namespace RemarkableSleepScreenManager
             try
             {
                 SetStatus("Téléchargement...");
-                var bytes = await _http.GetByteArrayAsync(item.DownloadUrl);
+                var bytes = await _http.GetByteArrayAsync(item.download_url);
                 var tmp = Path.Combine(Path.GetTempPath(), $"rm_{item.Id}_{Guid.NewGuid():N}.png");
                 await File.WriteAllBytesAsync(tmp, bytes);
                 Log($"Téléchargé → {tmp}");
@@ -295,7 +295,7 @@ namespace RemarkableSleepScreenManager
                 SetStatus("Installation depuis galerie...");
 
                 // 1) Télécharger l'image
-                var bytes = await _http.GetByteArrayAsync(item.DownloadUrl);
+                var bytes = await _http.GetByteArrayAsync(item.download_url);
                 var tmp = Path.Combine(Path.GetTempPath(), $"rm_{item.Id}_{Guid.NewGuid():N}.png");
                 await File.WriteAllBytesAsync(tmp, bytes);
 
