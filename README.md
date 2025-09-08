@@ -147,7 +147,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - 🐛 **Bug Reports**: [GitHub Issues](https://github.com/roropastis/ReMarkable-Sleep-Screen-Manager/issues)
 - 💡 **Feature Requests**: [GitHub Discussions](https://github.com/roropastis/ReMarkable-Sleep-Screen-Manager/discussions)
-- 📧 **Contact**: [Your contact information]
+- 📧 **Contact**: [bigscorestudio@gmail.com]
 
 ---
 
