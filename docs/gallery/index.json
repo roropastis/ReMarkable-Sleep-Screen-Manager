@@ -2,6 +2,17 @@
   "updated": "2025-09-08",
   "items": [
     {
+      "id": "audi-quattro",
+      "title": "Audi Quattro",
+      "author": "",
+      "license": "CC0",
+      "device": "paperpro",
+      "resolution": "1620x2160",
+      "preview_url": "https://roropastis.github.io/ReMarkable-Sleep-Screen-Manager/gallery/thumbs/audi-quattro.jpg",
+      "download_url": "https://roropastis.github.io/ReMarkable-Sleep-Screen-Manager/gallery/paperpro/audi-quattro.png",
+      "tags": []
+    },
+    {
       "id": "bmw-m3-csl",
       "title": "Bmw M3 Csl",
       "author": "",
