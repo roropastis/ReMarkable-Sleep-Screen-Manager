@@ -1,5 +1,5 @@
 {
-  "updated": "2025-09-07",
+  "updated": "2025-09-08",
   "items": [
     {
       "id": "01",
@@ -54,6 +54,17 @@
       "resolution": "1620x2160",
       "preview_url": "https://roropastis.github.io/ReMarkable-Sleep-Screen-Manager/gallery/thumbs/05.jpg",
       "download_url": "https://roropastis.github.io/ReMarkable-Sleep-Screen-Manager/gallery/paperpro/05.png",
+      "tags": []
+    },
+    {
+      "id": "peinture",
+      "title": "Peinture",
+      "author": "",
+      "license": "CC0",
+      "device": "paperpro",
+      "resolution": "1024x1536",
+      "preview_url": "https://roropastis.github.io/ReMarkable-Sleep-Screen-Manager/gallery/thumbs/peinture.jpg",
+      "download_url": "https://roropastis.github.io/ReMarkable-Sleep-Screen-Manager/gallery/paperpro/peinture.png",
       "tags": []
     }
   ]
