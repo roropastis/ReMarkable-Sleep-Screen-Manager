@@ -7,12 +7,15 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 
-		<!-- Options de publication propres (fichier unique, autonome) -->
+		<!-- Options de publication légères (nécessite .NET 8 Runtime) -->
 		<PublishSingleFile>true</PublishSingleFile>
-		<SelfContained>true</SelfContained>
+		<SelfContained>false</SelfContained>
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 		<EnableWindowsTargeting>true</EnableWindowsTargeting>
 		<UseWindowsForms>true</UseWindowsForms>
+		
+		<!-- Icône de l'application -->
+		<ApplicationIcon>Icons\app.ico</ApplicationIcon>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -20,7 +23,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Content Include="Assets\suspended.png">
+	  <EmbeddedResource Include="Assets\suspended.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="Icons\app.ico">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	</ItemGroup>

@@ -13,6 +13,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Net.Http;
 using System.Text.Json;
+using System.Reflection;
 using System.Collections.ObjectModel;
 using System.Text;
 using WF = System.Windows.Forms; // alias FolderBrowserDialog
@@ -26,9 +27,29 @@ namespace RemarkableSleepScreenManager
     public partial class MainWindow : Window
     {
         private string? _imagePath;
+        
+        // Méthode pour charger l'image depuis les ressources embarquées
+        private static string GetEmbeddedImagePath()
+        {
+            // Créer un fichier temporaire avec l'image embarquée
+            var tempPath = Path.Combine(Path.GetTempPath(), "suspended_embedded.png");
+            
+            // Si le fichier temporaire n'existe pas, le recréer
+            if (!File.Exists(tempPath))
+            {
+                using var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("RemarkableSleepScreenManager.Assets.suspended.png");
+                if (resourceStream != null)
+                {
+                    using var fileStream = File.Create(tempPath);
+                    resourceStream.CopyTo(fileStream);
+                }
+            }
+            
+            return tempPath;
+        }
+        
         // juste sous `private string? _imagePath;`
-        private static readonly string BundledOriginal =
-            System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "suspended.png");
+        private static readonly string BundledOriginal = GetEmbeddedImagePath();
 
         // --- Galerie: modèles & client HTTP ---
         public class GalleryCatalog { public string? Updated { get; set; } public List<GalleryItem> Items { get; set; } = new(); }

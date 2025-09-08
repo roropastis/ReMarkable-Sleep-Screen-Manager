@@ -14,6 +14,7 @@ using RemarkableSleepScreenManager.Commands;
 using WF = System.Windows.Forms;
 using WpfMessageBox = System.Windows.MessageBox;
 using Win32OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using System.Reflection;
 
 namespace RemarkableSleepScreenManager.ViewModels
 {
@@ -32,6 +33,26 @@ namespace RemarkableSleepScreenManager.ViewModels
         private string _screensFolderPath = "";
         private bool _autoResize = true;
         private bool _isLoading = false;
+
+        // Méthode pour charger l'image depuis les ressources embarquées
+        private static string GetEmbeddedImagePath()
+        {
+            // Créer un fichier temporaire avec l'image embarquée
+            var tempPath = Path.Combine(Path.GetTempPath(), "suspended_embedded.png");
+            
+            // Si le fichier temporaire n'existe pas, le recréer
+            if (!File.Exists(tempPath))
+            {
+                using var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("RemarkableSleepScreenManager.Assets.suspended.png");
+                if (resourceStream != null)
+                {
+                    using var fileStream = File.Create(tempPath);
+                    resourceStream.CopyTo(fileStream);
+                }
+            }
+            
+            return tempPath;
+        }
 
         public MainViewModel(ISshService sshService, IImageService imageService, IGalleryService galleryService)
         {
@@ -293,12 +314,12 @@ namespace RemarkableSleepScreenManager.ViewModels
                 IsLoading = true;
                 StatusText = "Restoring...";
 
-                var bundledOriginal = Path.Combine(AppContext.BaseDirectory, "Assets", "suspended.png");
+                var bundledOriginal = GetEmbeddedImagePath();
                 if (!File.Exists(bundledOriginal))
                 {
                     WpfMessageBox.Show(
-                        $"Original file not found: {bundledOriginal}\n" +
-                        "Add Assets\\suspended_original.png to the project (Content, Copy always).",
+                        $"Embedded image could not be extracted: {bundledOriginal}\n" +
+                        "The application may be corrupted.",
                         "Restore", MessageBoxButton.OK, MessageBoxImage.Warning);
                     StatusText = "Ready";
                     return;
