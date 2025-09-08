@@ -25,3 +25,4 @@ AssemblyInfo.cs
 bin/Debug
 obj/
 
+obj/Debug/net8.0-windows/win-x64/RemarkableSleepScreenManager_MarkupCompile.lref
