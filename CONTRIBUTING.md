@@ -37,7 +37,7 @@ Thank you for your interest in contributing to this project! This document outli
   - Include high-quality previews
   - Ensure images are appropriate and follow the project's style
 - Images must be:
-  - High resolution (at least 2160×1620 for Paper Pro, 1404×1872 for RM2)
+  - High resolution (at least 2160×1620 for Paper Pro)
   - PNG format
   - Appropriate content
   - Original or properly licensed
@@ -71,7 +71,6 @@ Thank you for your interest in contributing to this project! This document outli
 
 ## 📞 **Questions?**
 
-- Use [GitHub Discussions](https://github.com/roropastis/ReMarkable-Sleep-Screen-Manager/discussions) for general questions
 - Use [GitHub Issues](https://github.com/roropastis/ReMarkable-Sleep-Screen-Manager/issues) for specific problems
 
 ---
