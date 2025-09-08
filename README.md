@@ -104,16 +104,25 @@ The application follows **MVVM pattern** with:
 
 ## 🤝 Contributing
 
+We welcome contributions to improve the project! Here's how you can help:
+
+### 🐛 **Bug Reports & Feature Requests**
+- **Issues**: Report bugs or request new features via [GitHub Issues](https://github.com/roropastis/ReMarkable-Sleep-Screen-Manager/issues)
+- **Discussions**: Share ideas and feedback via [GitHub Discussions](https://github.com/roropastis/ReMarkable-Sleep-Screen-Manager/discussions)
+
+### 💻 **Code Contributions**
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-### Adding Gallery Images
-1. Add PNG files to `gallery-src/paperpro/` or `gallery-src/rm2/`
-2. Run `python scripts/generate_gallery.py`
-3. Commit the generated files
+**Note**: All code changes are reviewed and approved by the project maintainer.
+
+### 🖼️ **Gallery Images**
+- **Gallery images are managed by the project maintainer**
+- If you have images to suggest, please open an Issue with your suggestions
+- Images must be high-quality, appropriate, and follow the project's style guidelines
 
 ---
 
