@@ -27,9 +27,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Content Include="Icons\app.ico">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
+	  <Resource Include="Icons\app.ico" />
 	</ItemGroup>
 
 	<ItemGroup>
